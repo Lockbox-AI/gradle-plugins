@@ -17,7 +17,15 @@ gradle-app.setting
 # Eclipse Gradle plugin generated files
 # Eclipse Core
 .project
+
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 
+# Ignore Kotlin temporary files
+.kotlin/sessions/
+
+# Ignore temporary files
 tmp/
+
+# Ignore macOS files
+.DS_Store
