@@ -1,0 +1,8 @@
+/*
+ * Copyright (c) $YEAR Lockbox AI, Inc.
+ * All rights reserved.
+ *
+ * This software is proprietary to Lockbox AI, Inc. and may not be used,
+ * copied, distributed, or modified without express written permission from Lockbox AI, Inc.
+ */
+

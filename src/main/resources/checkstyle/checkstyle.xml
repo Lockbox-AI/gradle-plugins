@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+    Checkstyle configuration for j-standardizer project.
+    Compatible with Palantir Java Format to prevent formatting conflicts.
+    
+    This configuration focuses on semantic checks (code quality, design, javadoc)
+    and excludes whitespace/formatting checks that could conflict with
+    palantir-java-format used by Spotless.
+-->
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="warning"/>
+    <property name="fileExtensions" value="java"/>
+
+    <!-- Filters -->
+    <module name="SuppressWarningsFilter"/>
+    <module name="SuppressionFilter">
+        <property name="file" value="${config_loc}/suppressions.xml" default=""/>
+        <property name="optional" value="true"/>
+    </module>
+
+    <!-- 
+        NOTE: FileTabCharacter check removed to avoid conflicts with formatter
+    -->
+
+    <module name="TreeWalker">
+        <!-- Make Checkstyle aware of @SuppressWarnings annotations -->
+        <module name="SuppressWarningsHolder"/>
+
+        <!-- Annotations -->
+        <!-- Note: AnnotationLocation removed - formatter handles this -->
+        <module name="MissingDeprecated"/>
+        <module name="MissingOverride"/>
+
+        <!-- Block Checks -->
+        <module name="EmptyBlock">
+            <property name="option" value="TEXT"/>
+        </module>
+        <!-- Note: Left/RightCurly removed - formatter handles brace placement -->
+        <module name="NeedBraces"/>
+        <module name="AvoidNestedBlocks"/>
+
+        <!-- Class Design -->
+        <!-- Note: FinalClass check removed - Spring requires non-final classes for CGLIB proxying -->
+        <module name="InterfaceIsType"/>
+        <module name="HideUtilityClassConstructor">
+            <property name="ignoreAnnotatedBy" value="UtilityClass"/>
+        </module>
+        <module name="MutableException"/>
+        <module name="OneTopLevelClass"/>
+
+        <!-- Coding -->
+        <module name="EmptyStatement"/>
+        <module name="EqualsHashCode"/>
+        <module name="IllegalInstantiation"/>
+        <module name="InnerAssignment"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <module name="StringLiteralEquality"/>
+        <module name="NestedForDepth">
+            <property name="max" value="3"/>
+        </module>
+        <module name="NestedIfDepth">
+            <property name="max" value="3"/>
+        </module>
+        <module name="NestedTryDepth">
+            <property name="max" value="2"/>
+        </module>
+        <module name="NoClone"/>
+        <module name="NoFinalizer"/>
+        <module name="SuperClone"/>
+        <module name="SuperFinalize"/>
+        <module name="PackageDeclaration"/>
+        <module name="FallThrough"/>
+        <module name="MultipleVariableDeclarations"/>
+        <!-- Note: UnnecessaryParentheses removed - can conflict with formatter -->
+        <module name="OneStatementPerLine"/>
+
+        <!-- Imports -->
+        <module name="AvoidStarImport"/>
+        <module name="RedundantImport"/>
+        <!-- Note: UnusedImports handled by palantir-java-format -->
+        <module name="IllegalImport"/>
+
+        <!-- Javadoc Comments -->
+        <module name="InvalidJavadocPosition"/>
+        <module name="JavadocMethod">
+            <property name="accessModifiers" value="public"/>
+            <property name="allowMissingParamTags" value="false"/>
+            <property name="allowMissingReturnTag" value="false"/>
+        </module>
+        <module name="JavadocType"/>
+        <module name="JavadocVariable">
+            <property name="scope" value="public"/>
+        </module>
+        <module name="JavadocStyle">
+            <property name="checkEmptyJavadoc" value="true"/>
+        </module>
+        <module name="MissingJavadocMethod">
+            <property name="scope" value="public"/>
+            <property name="allowMissingPropertyJavadoc" value="true"/>
+        </module>
+
+        <!-- Miscellaneous -->
+        <module name="ArrayTypeStyle"/>
+        <module name="UpperEll"/>
+        <module name="OuterTypeFilename"/>
+
+        <!-- Modifiers -->
+        <module name="ModifierOrder"/>
+        <module name="RedundantModifier"/>
+
+        <!-- Naming Conventions -->
+        <module name="ConstantName"/>
+        <module name="LocalFinalVariableName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
+        <module name="MethodName"/>
+        <module name="PackageName"/>
+        <module name="ParameterName"/>
+        <module name="StaticVariableName"/>
+        <module name="TypeName"/>
+        <module name="ClassTypeParameterName"/>
+        <module name="MethodTypeParameterName"/>
+        <module name="InterfaceTypeParameterName"/>
+
+        <!-- Size Violations -->
+        <module name="MethodLength">
+            <property name="max" value="150"/>
+        </module>
+        <module name="ParameterNumber">
+            <property name="max" value="7"/>
+        </module>
+
+        <!-- 
+            WHITESPACE CHECKS REMOVED FOR PALANTIR-JAVA-FORMAT COMPATIBILITY
+            
+            The following checks have been removed to prevent conflicts with
+            the palantir-java-format formatter used by Spotless:
+            
+            - EmptyForIteratorPad
+            - GenericWhitespace
+            - MethodParamPad
+            - NoWhitespaceAfter
+            - NoWhitespaceBefore
+            - OperatorWrap
+            - ParenPad
+            - TypecastParenPad
+            - WhitespaceAfter
+            - WhitespaceAround
+            - LeftCurly
+            - RightCurly
+            - AnnotationLocation
+            
+            The formatter handles all whitespace formatting automatically.
+        -->
+    </module>
+</module>
