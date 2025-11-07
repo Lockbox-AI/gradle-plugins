@@ -9,7 +9,9 @@
  * - Test framework setup
  * - Reproducible build settings with dependency locking
  * 
- * All version references use centralized constants defined below.
+ * Version management is delegated to the consuming project via gradle.properties.
+ * Projects can override tool versions using lockbox.* properties.
+ * See plugin README for available version properties.
  */
 
 plugins {
@@ -22,20 +24,6 @@ plugins {
     id("com.github.spotbugs")
     id("project-report")
     `java-test-fixtures`  // Enable test fixtures support (dependencies added per-module)
-}
-
-// ========================================
-// Version Constants
-// ========================================
-// These must match versions in framework-platform.gradle.kts
-object Versions {
-    const val JAVA = 21
-    const val JACOCO = "0.8.11"
-    const val CHECKSTYLE = "10.20.2"
-    const val PMD = "7.9.0"
-    const val SPOTBUGS = "4.8.6"
-    const val PALANTIR_JAVA_FORMAT = "2.81.0"
-    const val LOMBOK = "1.18.36"
 }
 
 // ========================================
@@ -72,7 +60,9 @@ java {
     withJavadocJar()
     withSourcesJar()
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(Versions.JAVA))
+        // Java 21 is required for all Lockbox modules
+        // Projects can override by configuring java.toolchain in their build scripts
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
@@ -188,7 +178,7 @@ tasks.register("testAll") {
 // ========================================
 
 jacoco {
-    toolVersion = Versions.JACOCO
+    toolVersion = findProperty("lockbox.jacoco.version")?.toString() ?: "0.8.11"
 }
 
 tasks.named("test") {
@@ -223,7 +213,7 @@ tasks.register<JacocoCoverageVerification>("jacocoCheck") {
 // ========================================
 
 fun javaApiUrl(): String {
-    val v = Versions.JAVA
+    val v = 21  // Java 21 is required for all Lockbox modules
     return if (v <= 10)
         "https://docs.oracle.com/javase/$v/docs/api/"
     else
@@ -262,8 +252,9 @@ tasks.withType<Javadoc>().configureEach {
         addStringOption("Xdoclint:none", "-quiet")
         memberLevel = JavadocMemberLevel.PRIVATE
         
+        val lombokVersion = findProperty("lockbox.lombok.version")?.toString() ?: "1.18.36"
         links(javaApiUrl())
-        links("https://javadoc.io/doc/org.projectlombok/lombok/${Versions.LOMBOK}/")
+        links("https://javadoc.io/doc/org.projectlombok/lombok/${lombokVersion}/")
         
         addBooleanOption("notimestamp", true)
     }
@@ -283,7 +274,8 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
             ?: throw IllegalStateException("License header resource not found in plugin")
         licenseHeader(licenseHeaderContent)
         
-        palantirJavaFormat(Versions.PALANTIR_JAVA_FORMAT)
+        val palantirVersion = findProperty("lockbox.palantir.version")?.toString() ?: "2.81.0"
+        palantirJavaFormat(palantirVersion)
         
         trimTrailingWhitespace()
         endWithNewline()
@@ -353,7 +345,7 @@ val checkstyleConfigFile = File(checkstyleConfigDir, "checkstyle.xml")
 val suppressionsConfigFile = File(checkstyleConfigDir, "suppressions.xml")
 
 configure<CheckstyleExtension> {
-    toolVersion = Versions.CHECKSTYLE
+    toolVersion = findProperty("lockbox.checkstyle.version")?.toString() ?: "10.20.2"
     configFile = checkstyleConfigFile
     configDirectory.set(checkstyleConfigDir)
     isIgnoreFailures = false
@@ -376,7 +368,7 @@ val pmdConfigDir = layout.buildDirectory.dir("gradle-plugins-config/pmd").get().
 val pmdConfigFile = File(pmdConfigDir, "pmd-ruleset.xml")
 
 configure<PmdExtension> {
-    toolVersion = Versions.PMD
+    toolVersion = findProperty("lockbox.pmd.version")?.toString() ?: "7.9.0"
     isConsoleOutput = true
     isIgnoreFailures = false
     ruleSets = listOf()
@@ -398,7 +390,7 @@ val spotbugsConfigDir = layout.buildDirectory.dir("gradle-plugins-config/spotbug
 val spotbugsConfigFile = File(spotbugsConfigDir, "spotbugs-exclude.xml")
 
 configure<com.github.spotbugs.snom.SpotBugsExtension> {
-    toolVersion.set(Versions.SPOTBUGS)
+    toolVersion.set(findProperty("lockbox.spotbugs.version")?.toString() ?: "4.8.6")
     effort.set(com.github.spotbugs.snom.Effort.MAX)
     reportLevel.set(com.github.spotbugs.snom.Confidence.LOW)
     excludeFilter.set(layout.buildDirectory.file("gradle-plugins-config/spotbugs/spotbugs-exclude.xml").get().asFile)
