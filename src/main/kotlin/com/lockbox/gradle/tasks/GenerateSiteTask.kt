@@ -534,8 +534,9 @@ abstract class GenerateSiteTask : DefaultTask() {
     /**
      * Generates an aggregated index.html for multi-module projects.
      *
-     * Loads the aggregated site template and generates a simple directory listing
-     * of all modules with links to their individual documentation sites.
+     * Loads the aggregated site template and generates a directory listing
+     * of all modules with links to their individual documentation sites,
+     * including module descriptions and javadoc links.
      *
      * @param siteDir The output directory where index.html will be written
      * @param modules The list of module names (subdirectories)
@@ -548,12 +549,29 @@ abstract class GenerateSiteTask : DefaultTask() {
         val buildDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         val javaVersion = System.getProperty("java.version")
         
+        // Collect module descriptions from root project's subprojects
+        val moduleDescriptions = try {
+            project.rootProject.subprojects.associate { subproject ->
+                subproject.name to (subproject.description ?: "")
+            }
+        } catch (e: Exception) {
+            logger.warn("Could not access project descriptions: ${e.message}")
+            emptyMap<String, String>()
+        }
+        
         // Generate module list HTML
         val moduleListHtml = modules.sorted().joinToString("\n") { moduleName ->
+            val description = moduleDescriptions[moduleName] ?: ""
+            val descriptionHtml = if (description.isNotEmpty()) {
+                """<span class="module-description">$description</span>"""
+            } else {
+                ""
+            }
             """
                 <a href="./$moduleName/index.html" class="module-link">
                     <strong>$moduleName</strong>
-                    <span>View comprehensive documentation and quality metrics</span>
+                    $descriptionHtml
+                    <span class="javadoc-link" onclick="event.stopPropagation(); window.location.href='./$moduleName/javadoc/index.html';">View Javadoc</span>
                 </a>
             """.trimIndent()
         }
