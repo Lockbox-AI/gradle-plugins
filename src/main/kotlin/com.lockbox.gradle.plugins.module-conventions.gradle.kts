@@ -1,7 +1,4 @@
 import com.lockbox.gradle.tasks.GenerateSiteTask
-import com.lockbox.gradle.tasks.WriteLatestRedirectTask
-import com.lockbox.gradle.tasks.UploadDocsTask
-import org.gradle.api.tasks.Sync
 
 /**
  * Lockbox Module Conventions Plugin
@@ -199,114 +196,34 @@ tasks.register<GenerateSiteTask>("generateSite") {
         "sourcesJar",
         "jar",
         "generateMetadataFileForMavenJavaPublication",
-        "writeLatestRedirect",
         "generatePomFileForMavenJavaPublication"
     )
 }
 
 // ========================================
-// Documentation Portal Publishing
+// Local Documentation Preview
 // ========================================
+// Note: For multi-module projects, staging and publishing are handled at the root level.
+// See: gradle/docs-portal-publishing.gradle.kts in the root project.
 
-val docsBucketValue = (findProperty("docs.bucket") as String?)
-    ?: System.getenv("DOCS_BUCKET")
-    ?: (rootProject.extra.properties["DOCS_PORTAL_BUCKET"] as? String)
-
-val stageDir = layout.buildDirectory.dir("docsUpload")
-
-val writeLatestRedirect by tasks.registering(WriteLatestRedirectTask::class) {
-    projectVersion.set(version.toString())
-    artifactType.set("site")
-    projectSlug.set("lockbox-framework")
-    s3BasePrefix.set("site/lockbox-framework")
-    outputDir.set(stageDir.map { it.dir("site/lockbox-framework/latest") })
-}
-
-val stageDocs by tasks.registering(Sync::class) {
-    val generateSiteTask = tasks.named("generateSite")
-    dependsOn(generateSiteTask)
-    
-    // For multi-module projects: site is generated in rootProject.build/site/{module-name}/
-    // Depend on root's generateSite which coordinates all modules to avoid implicit dependencies
-    val moduleSiteDir = rootProject.layout.buildDirectory.dir("site/${project.name}")
-    
-    // The root project's generateSite task depends on all modules' generateSite tasks,
-    // so by depending on it, we ensure all site generation is complete before staging
-    rootProject.tasks.findByName("generateSite")?.let { rootGenerateSite ->
-        dependsOn(rootGenerateSite)
-    }
-    
-    from(moduleSiteDir)
-    into(stageDir.map { it.dir("site/lockbox-framework/$version") })
-    
-    doLast {
-        logger.lifecycle("Staged documentation to: ${destinationDir.absolutePath}")
-    }
-}
-
-val assembleDocsUpload by tasks.registering {
-    dependsOn(stageDocs, writeLatestRedirect)
-    group = "documentation"
-    description = "Assembles all documentation artifacts for upload"
-}
-
-val uploadDocs by tasks.registering(UploadDocsTask::class) {
-    dependsOn(assembleDocsUpload)
-    group = "documentation"
-    description = "Uploads documentation to S3 docs portal"
-    
-    if (docsBucketValue != null) {
-        docsBucket.set(docsBucketValue)
-    }
-    s3BasePrefix.set("site/lockbox-framework")
-    projectVersion.set(version.toString())
-    artifactType.set("site")
-    projectSlug.set("lockbox-framework")
-    stagingDir.set(stageDir)
-}
-
-tasks.register("publishDocs") {
-    dependsOn(uploadDocs)
-    group = "documentation"
-    description = "Builds comprehensive site and publishes it to engineering docs portal"
-    
-    val projectVersion = version.toString()
-    
-    doLast {
-        val versionType = if (projectVersion.endsWith("-SNAPSHOT")) "Snapshot" else "Release"
-        
-        logger.lifecycle("")
-        logger.lifecycle("=" .repeat(70))
-        logger.lifecycle("Documentation published successfully!")
-        logger.lifecycle("=" .repeat(70))
-        logger.lifecycle("Project:      lockbox-framework")
-        logger.lifecycle("Type:         site")
-        logger.lifecycle("Version:      $projectVersion ($versionType)")
-        logger.lifecycle("Latest URL:   https://engineering-docs.lockboxai.com/site/lockbox-framework/latest/")
-        logger.lifecycle("Version URL:  https://engineering-docs.lockboxai.com/site/lockbox-framework/$projectVersion/")
-        logger.lifecycle("=" .repeat(70))
-        logger.lifecycle("")
-        logger.lifecycle("Portal displays:")
-        if (projectVersion.endsWith("-SNAPSHOT")) {
-            logger.lifecycle("  - This version appears under 'Latest Snapshot' (yellow badge)")
-        } else {
-            logger.lifecycle("  - This version appears under 'Latest Release' (green badge)")
-        }
-        logger.lifecycle("")
-    }
-}
-
+/**
+ * Preview the generated module documentation in a browser.
+ * 
+ * For multi-module projects, this opens the module's specific documentation page.
+ * To view the aggregated index, run this task from the root project.
+ */
 tasks.register<Exec>("previewDocs") {
     dependsOn("generateSite")
     group = "documentation"
-    description = "Builds site and opens it in browser"
+    description = "Builds module site and opens it in browser"
     
-    val indexFile = layout.buildDirectory.dir("site").map { it.file("index.html").asFile }
+    // For modules, the site is at rootProject.build/site/{module-name}/index.html
+    val indexFile = rootProject.layout.buildDirectory.dir("site/${project.name}").map { it.file("index.html").asFile }
     
     doFirst {
         val file = indexFile.get()
         if (!file.exists()) {
-            throw GradleException("Site index.html not found at ${file.absolutePath}. Run 'generateSite' first.")
+            throw GradleException("Module site index.html not found at ${file.absolutePath}. Run 'generateSite' first.")
         }
         
         val cmd = when {
@@ -321,12 +238,6 @@ tasks.register<Exec>("previewDocs") {
         }
         
         commandLine(cmd)
-        logger.lifecycle("Opening documentation in browser: ${file.absolutePath}")
+        logger.lifecycle("Opening module documentation in browser: ${file.absolutePath}")
     }
-}
-
-tasks.register<Delete>("cleanDocs") {
-    group = "documentation"
-    description = "Cleans documentation staging directory"
-    delete(stageDir)
 }
