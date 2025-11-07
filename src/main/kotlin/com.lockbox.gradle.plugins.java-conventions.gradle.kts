@@ -481,6 +481,40 @@ tasks.named("build") {
 // Maven Publishing Configuration
 // ========================================
 
+// Validate and read required publishing metadata properties
+fun requireProperty(key: String): String {
+    return project.findProperty(key)?.toString()
+        ?: throw GradleException("Required property '$key' not found in gradle.properties. Please add it to your project's gradle.properties file.")
+}
+
+val missingProperties = mutableListOf<String>()
+fun checkProperty(key: String): String? {
+    val value = project.findProperty(key)?.toString()
+    if (value.isNullOrBlank()) {
+        missingProperties.add(key)
+    }
+    return value
+}
+
+// Check all required properties
+val pomUrl = checkProperty("project.pom.url")
+val licenseName = checkProperty("project.pom.license.name")
+val licenseUrl = checkProperty("project.pom.license.url")
+val developerId = checkProperty("project.pom.developer.id")
+val developerName = checkProperty("project.pom.developer.name")
+val developerEmail = checkProperty("project.pom.developer.email")
+val scmConnection = checkProperty("project.pom.scm.connection")
+val scmDeveloperConnection = checkProperty("project.pom.scm.developerConnection")
+val scmUrl = checkProperty("project.pom.scm.url")
+
+if (missingProperties.isNotEmpty()) {
+    throw GradleException(
+        "Missing required publishing metadata properties in gradle.properties:\n" +
+        missingProperties.joinToString("\n") { "  - $it" } +
+        "\n\nPlease add these properties to your project's gradle.properties file."
+    )
+}
+
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
@@ -497,27 +531,27 @@ publishing {
             pom {
                 name.set(project.name)
                 description.set(project.description ?: project.name)
-                url.set("https://github.com/Lockbox-AI/lockbox-framework")
+                url.set(pomUrl!!)
                 
                 licenses {
                     license {
-                        name.set("Proprietary")
-                        url.set("https://lockboxai.com/license")
+                        name.set(licenseName!!)
+                        url.set(licenseUrl!!)
                     }
                 }
                 
                 developers {
                     developer {
-                        id.set("lockboxai")
-                        name.set("Lockbox AI Engineering")
-                        email.set("engineering@lockboxai.com")
+                        id.set(developerId!!)
+                        name.set(developerName!!)
+                        email.set(developerEmail!!)
                     }
                 }
                 
                 scm {
-                    connection.set("scm:git:git://github.com/Lockbox-AI/lockbox-framework.git")
-                    developerConnection.set("scm:git:ssh://github.com/Lockbox-AI/lockbox-framework.git")
-                    url.set("https://github.com/Lockbox-AI/lockbox-framework")
+                    connection.set(scmConnection!!)
+                    developerConnection.set(scmDeveloperConnection!!)
+                    url.set(scmUrl!!)
                 }
                 
                 // Ensure only direct dependencies are included in POM
