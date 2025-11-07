@@ -21,7 +21,7 @@ plugins {
     pmd
     id("com.github.spotbugs")
     id("project-report")
-    `java-test-fixtures`  // Enable test fixtures support
+    `java-test-fixtures`  // Enable test fixtures support (dependencies added per-module)
 }
 
 // ========================================
@@ -132,11 +132,6 @@ testing {
     suites {
         val test by getting(JvmTestSuite::class) {
             useJUnitJupiter()
-            
-            dependencies {
-                // Note: Test suite dependencies are added in individual modules
-                // because they need access to the platform BOM which is module-specific
-            }
         }
         
         // Integration test suite
@@ -146,9 +141,6 @@ testing {
             dependencies {
                 // Integration tests have access to main sources
                 implementation(project())
-                
-                // Note: Integration test dependencies are added in individual modules
-                // because they need access to the platform BOM which is module-specific
             }
             
             targets {
@@ -190,13 +182,6 @@ tasks.register("testAll") {
     group = "verification"
     description = "Runs all unit and integration tests"
 }
-
-// ========================================
-// Test Fixtures Configuration
-// ========================================
-// Note: Test fixtures dependencies should be added by individual modules
-// that provide test fixtures, not globally here. Each module can decide
-// what dependencies its test fixtures need.
 
 // ========================================
 // JaCoCo Configuration
