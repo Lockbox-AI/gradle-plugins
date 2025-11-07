@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{projectName}} - Project Site</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .project-info {
+            background: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .project-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .info-item strong {
+            display: block;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .metric-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .metric-label {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .metric-details {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.9em;
+        }
+        
+        .metric-row span:first-child {
+            color: #666;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+        
+        .reports-section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .reports-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .report-link {
+            display: block;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.2s;
+            border-left: 4px solid #667eea;
+        }
+        
+        .report-link:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .report-link strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+        
+        .report-link span {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{projectName}}</h1>
+            <p>Comprehensive Project Site - Version {{projectVersion}}</p>
+        </header>
+        
+        <div class="project-info">
+            <h2 style="color: #667eea; margin-bottom: 15px;">Project Information</h2>
+            <div class="project-info-grid">
+                <div class="info-item">
+                    <strong>Version</strong>
+                    {{projectVersion}}
+                </div>
+                <div class="info-item">
+                    <strong>Build Date</strong>
+                    {{buildDate}}
+                </div>
+                <div class="info-item">
+                    <strong>Java Version</strong>
+                    {{javaVersion}}
+                </div>
+                <div class="info-item">
+                    <strong>Gradle Version</strong>
+                    {{gradleVersion}}
+                </div>
+            </div>
+        </div>
+        
+        <h2 style="color: #667eea; margin-bottom: 20px; font-size: 2em;">Quality Metrics</h2>
+        
+        <div class="metrics-grid">
+            <!-- Test Results Card -->
+            <div class="metric-card">
+                <h3>🧪 Test Results</h3>
+                <div class="metric-value" style="color: {{testFailureColor}};">
+                    {{testsPassed}}/{{testsTotal}}
+                </div>
+                <div class="metric-label">Tests Passed</div>
+                <div class="metric-details">
+                    <div class="metric-row">
+                        <span>Total Tests:</span>
+                        <strong>{{testsTotal}}</strong>
+                    </div>
+                    <div class="metric-row">
+                        <span>Passed:</span>
+                        <strong style="color: #28a745;">{{testsPassed}}</strong>
+                    </div>
+                    <div class="metric-row">
+                        <span>Failed:</span>
+                        <strong style="color: #dc3545;">{{testsFailed}}</strong>
+                    </div>
+                    <div class="metric-row">
+                        <span>Skipped:</span>
+                        <strong style="color: #ffc107;">{{testsSkipped}}</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Code Coverage Card -->
+            <div class="metric-card">
+                <h3>📊 Code Coverage</h3>
+                <div class="metric-value" style="color: {{coverageColor}};">
+                    {{linesCoverage}}%
+                </div>
+                <div class="metric-label">Line Coverage</div>
+                <div class="metric-details">
+                    <div class="metric-row">
+                        <span>Line Coverage:</span>
+                        <span class="badge" style="background-color: {{coverageColor}};">
+                            {{linesCoverage}}%
+                        </span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Branch Coverage:</span>
+                        <span class="badge" style="background-color: {{branchCoverageColor}};">
+                            {{branchesCoverage}}%
+                        </span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Instruction Coverage:</span>
+                        <span class="badge" style="background-color: {{instructionCoverageColor}};">
+                            {{instructionsCoverage}}%
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Checkstyle Card -->
+            <div class="metric-card">
+                <h3>✓ Checkstyle</h3>
+                <div class="metric-value" style="color: {{checkstyleViolationColor}};">
+                    {{checkstyleTotal}}
+                </div>
+                <div class="metric-label">Total Violations</div>
+                <div class="metric-details">
+                    <div class="metric-row">
+                        <span>Errors:</span>
+                        <span class="badge" style="background-color: #dc3545;">{{checkstyleErrors}}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Warnings:</span>
+                        <span class="badge" style="background-color: #ffc107;">{{checkstyleWarnings}}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Info:</span>
+                        <span class="badge" style="background-color: #17a2b8;">{{checkstyleInfos}}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PMD Card -->
+            <div class="metric-card">
+                <h3>🔍 PMD</h3>
+                <div class="metric-value" style="color: {{pmdViolationColor}};">
+                    {{pmdTotal}}
+                </div>
+                <div class="metric-label">Total Issues</div>
+                <div class="metric-details">
+                    <div class="metric-row">
+                        <span>Priority 1 (High):</span>
+                        <span class="badge" style="background-color: #dc3545;">{{pmdPriority1}}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Priority 2:</span>
+                        <span class="badge" style="background-color: #fd7e14;">{{pmdPriority2}}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Priority 3:</span>
+                        <span class="badge" style="background-color: #ffc107;">{{pmdPriority3}}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Priority 4-5:</span>
+                        <span class="badge" style="background-color: #6c757d;">{{pmdPriority45}}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SpotBugs Card -->
+            <div class="metric-card">
+                <h3>🐛 SpotBugs</h3>
+                <div class="metric-value" style="color: {{spotbugsViolationColor}};">
+                    {{spotbugsTotal}}
+                </div>
+                <div class="metric-label">Total Bugs</div>
+                <div class="metric-details">
+                    <div class="metric-row">
+                        <span>High Priority:</span>
+                        <span class="badge" style="background-color: #dc3545;">{{spotbugsHigh}}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Medium Priority:</span>
+                        <span class="badge" style="background-color: #ffc107;">{{spotbugsMedium}}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Low Priority:</span>
+                        <span class="badge" style="background-color: #17a2b8;">{{spotbugsLow}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="reports-section">
+            <h2>📚 Detailed Reports</h2>
+            <div class="reports-grid">
+                <a href="javadoc/index.html" class="report-link">
+                    <strong>API Documentation</strong>
+                    <span>Complete JavaDoc for all classes</span>
+                </a>
+                <a href="coverage/index.html" class="report-link">
+                    <strong>Coverage Report</strong>
+                    <span>Detailed code coverage analysis</span>
+                </a>
+                <a href="tests/index.html" class="report-link">
+                    <strong>Test Results</strong>
+                    <span>Comprehensive test execution report</span>
+                </a>
+                <a href="checkstyle/checkstyleMain.html" class="report-link">
+                    <strong>Checkstyle (Main)</strong>
+                    <span>Code style analysis for main sources</span>
+                </a>
+                <a href="checkstyle/checkstyleTest.html" class="report-link">
+                    <strong>Checkstyle (Test)</strong>
+                    <span>Code style analysis for test sources</span>
+                </a>
+                <a href="pmd/pmdMain.html" class="report-link">
+                    <strong>PMD (Main)</strong>
+                    <span>Static code analysis for main sources</span>
+                </a>
+                <a href="pmd/pmdTest.html" class="report-link">
+                    <strong>PMD (Test)</strong>
+                    <span>Static code analysis for test sources</span>
+                </a>
+                <a href="spotbugs/main.html" class="report-link">
+                    <strong>SpotBugs (Main)</strong>
+                    <span>Bug detection for main sources</span>
+                </a>
+                <a href="spotbugs/test.html" class="report-link">
+                    <strong>SpotBugs (Test)</strong>
+                    <span>Bug detection for test sources</span>
+                </a>
+                <a href="reports/project/dependencies/index.html" class="report-link">
+                    <strong>Project Dependencies</strong>
+                    <span>Dependency tree and analysis</span>
+                </a>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Generated by Gradle {{gradleVersion}} on {{buildDate}}</p>
+            <p>{{projectName}} v{{projectVersion}}</p>
+        </footer>
+    </div>
+</body>
+</html>
