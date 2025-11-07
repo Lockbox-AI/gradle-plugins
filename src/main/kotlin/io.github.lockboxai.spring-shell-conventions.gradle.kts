@@ -17,7 +17,7 @@
 
 plugins {
     // Apply the base Spring Boot conventions plugin first
-    id("com.lockbox.gradle.plugins.spring-boot-conventions")
+    id("io.github.lockboxai.spring-boot-conventions")
 }
 
 // ========================================

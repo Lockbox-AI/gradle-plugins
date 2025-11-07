@@ -16,7 +16,7 @@ import com.lockbox.gradle.tasks.GenerateSiteTask
 
 plugins {
     // Apply the base Java conventions plugin first
-    id("com.lockbox.gradle.plugins.java-conventions")
+    id("io.github.lockboxai.java-conventions")
     
     // Apply Lombok plugin for all modules
     // This is applied here (not in java-conventions) to avoid Gradle 9.2.0 Tooling API issues
