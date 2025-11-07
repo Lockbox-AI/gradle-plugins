@@ -15,7 +15,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             line-height: 1.6;
             color: #333;
-            background-color: #f5f5f5;
+            background-color: #f8fafc;
         }
         
         .container {
@@ -25,7 +25,7 @@
         }
         
         header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e3a8a;
             color: white;
             padding: 40px 20px;
             margin-bottom: 30px;
@@ -59,13 +59,13 @@
         
         .info-item {
             padding: 10px;
-            background: #f8f9fa;
+            background: #f1f5f9;
             border-radius: 4px;
         }
         
         .info-item strong {
             display: block;
-            color: #667eea;
+            color: #1e3a8a;
             margin-bottom: 5px;
         }
         
@@ -78,10 +78,10 @@
         }
         
         .modules-section h2 {
-            color: #667eea;
+            color: #1e3a8a;
             margin-bottom: 20px;
             font-size: 1.8em;
-            border-bottom: 2px solid #667eea;
+            border-bottom: 2px solid #1e3a8a;
             padding-bottom: 10px;
         }
         
@@ -94,16 +94,16 @@
         .module-link {
             display: block;
             padding: 20px;
-            background: #f8f9fa;
+            background: #f1f5f9;
             border-radius: 6px;
             text-decoration: none;
             color: #333;
             transition: all 0.2s;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #1e3a8a;
         }
         
         .module-link:hover {
-            background: #667eea;
+            background: #1e3a8a;
             color: white;
             transform: translateX(5px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -128,11 +128,11 @@
         }
         
         .intro-text {
-            background: #e7f3ff;
+            background: #dbeafe;
             padding: 15px;
             border-radius: 6px;
             margin-bottom: 20px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #1e3a8a;
         }
         
         .intro-text p {
@@ -149,7 +149,7 @@
         </header>
         
         <div class="project-info">
-            <h2 style="color: #667eea; margin-bottom: 15px;">Project Information</h2>
+            <h2 style="color: #1e3a8a; margin-bottom: 15px;">Project Information</h2>
             <div class="project-info-grid">
                 <div class="info-item">
                     <strong>Version</strong>
