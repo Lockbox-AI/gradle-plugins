@@ -100,6 +100,7 @@
             color: #333;
             transition: all 0.2s;
             border-left: 4px solid #1e3a8a;
+            position: relative;
         }
         
         .module-link:hover {
@@ -109,15 +110,56 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         
-        .module-link strong {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 1.2em;
+        .module-link:hover .javadoc-link {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.5);
         }
         
-        .module-link span {
-            font-size: 0.9em;
-            opacity: 0.8;
+        .module-link:hover .javadoc-link:hover {
+            background: white;
+            color: #1e3a8a;
+        }
+        
+        .module-link strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.2em;
+            color: inherit;
+        }
+        
+        .module-description {
+            display: block;
+            font-size: 0.95em;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            opacity: 0.85;
+        }
+        
+        .module-link:hover .module-description {
+            opacity: 0.95;
+        }
+        
+        .javadoc-link {
+            display: inline-block;
+            padding: 6px 12px;
+            background: white;
+            color: #1e3a8a;
+            border: 1px solid #1e3a8a;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-top: 4px;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+        }
+        
+        .javadoc-link:hover {
+            background: #1e3a8a;
+            color: white;
         }
         
         footer {
