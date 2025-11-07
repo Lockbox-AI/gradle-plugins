@@ -150,18 +150,20 @@ class S3DocumentationUploader(
         // Phase 1: Upload HTML files with explicit content-type
         val htmlFiles = allFiles.filter { it.extension.lowercase() == "html" }
         logger.lifecycle("Phase 1: Uploading ${htmlFiles.size} HTML files...")
-        htmlFiles.forEach { file ->
+        htmlFiles.forEachIndexed { index, file ->
             val key = getS3Key(file)
             uploadWithRetry(file, key, "text/html; charset=utf-8")
+            logProgress(index + 1, htmlFiles.size, "Phase 1")
         }
         
         // Phase 2: Upload all other files
         val otherFiles = allFiles.filter { it.extension.lowercase() != "html" }
         logger.lifecycle("Phase 2: Uploading ${otherFiles.size} non-HTML files...")
-        otherFiles.forEach { file ->
+        otherFiles.forEachIndexed { index, file ->
             val key = getS3Key(file)
             val contentType = detectContentType(file)
             uploadWithRetry(file, key, contentType)
+            logProgress(index + 1, otherFiles.size, "Phase 2")
         }
         
         // Phase 3: Delete remote files not present locally (if deleteOthers is true)
@@ -212,6 +214,22 @@ class S3DocumentationUploader(
     private fun detectContentType(file: File): String {
         return runCatching { Files.probeContentType(file.toPath()) }
             .getOrNull() ?: "application/octet-stream"
+    }
+    
+    /**
+     * Logs progress at percentage milestones (25%, 50%, 75%, 100%).
+     * 
+     * @param current Current number of files processed
+     * @param total Total number of files to process
+     * @param phase Phase name for logging context
+     */
+    private fun logProgress(current: Int, total: Int, phase: String) {
+        if (total == 0) return
+        val percentage = (current * 100) / total
+        // Log at 25%, 50%, 75%, and 100% milestones
+        if (percentage % 25 == 0 && percentage > 0) {
+            logger.lifecycle("  $phase: $current/$total files ($percentage%)")
+        }
     }
     
     /**
@@ -356,7 +374,7 @@ class S3DocumentationUploader(
                         
                         s3Client.deleteObjects(deleteRequest)
                         deletedCount += batch.size
-                        logger.lifecycle("Deleted ${batch.size} remote files")
+                        logger.lifecycle("  Phase 3: Deleted $deletedCount files so far...")
                     }
                 }
             }
