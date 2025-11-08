@@ -104,9 +104,79 @@ Java 21 is required for all Lockbox modules. This is hardcoded in the plugins an
 
 ## Publishing
 
+### Publishing to Maven Local
+
+For local development and testing:
+
 ```bash
-./gradlew publish
+./gradlew publishToMavenLocal
 ```
+
+### Publishing to Gradle Plugin Portal
+
+#### Prerequisites
+
+Before publishing to the Gradle Plugin Portal, you need to:
+
+1. **Create a Gradle Plugin Portal account** at https://plugins.gradle.org/user/register
+2. **Retrieve your API key** from the "API Keys" tab in your profile
+3. **Configure credentials** in `~/.gradle/gradle.properties`:
+
+```properties
+gradle.publish.key=<your-key>
+gradle.publish.secret=<your-secret>
+```
+
+**Security Note:** Never commit these credentials to version control. The `~/.gradle/gradle.properties` file in your home directory is the recommended location.
+
+#### Validation
+
+Before publishing, validate your plugin configuration without uploading:
+
+```bash
+./gradlew publishPlugins --validate-only
+```
+
+This command checks:
+- All required plugin metadata is present
+- Plugin artifacts can be generated correctly
+- No configuration errors exist
+
+#### Publishing
+
+To publish all plugins to the Gradle Plugin Portal:
+
+```bash
+./gradlew publishPlugins
+```
+
+You can also pass credentials on the command line (useful for CI/CD):
+
+```bash
+./gradlew publishPlugins -Pgradle.publish.key=<key> -Pgradle.publish.secret=<secret>
+```
+
+#### After Publishing
+
+- Your plugins will go through an **approval process** which typically takes 1-3 business days
+- You'll receive email notifications about the approval status
+- Once approved, plugins will be immediately available on the [Gradle Plugin Portal](https://plugins.gradle.org/)
+- Users can then apply your plugins using the standard `plugins {}` DSL
+
+#### Published Plugins
+
+This project publishes 7 plugins:
+
+**AWS Integration:**
+- `io.github.lockboxai.aws-environment` - AWS authentication and environment setup
+- `io.github.lockboxai.codeartifact-repositories` - CodeArtifact Maven repositories
+- `io.github.lockboxai.codeartifact-repositories-settings` - CodeArtifact plugin repositories
+
+**Convention Plugins:**
+- `io.github.lockboxai.java-conventions` - Base Java configuration with quality tools
+- `io.github.lockboxai.module-conventions` - Lockbox module configuration
+- `io.github.lockboxai.spring-boot-conventions` - Spring Boot application configuration
+- `io.github.lockboxai.spring-shell-conventions` - Spring Shell CLI configuration
 
 ## License
 

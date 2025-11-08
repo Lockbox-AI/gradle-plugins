@@ -19,6 +19,7 @@ plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
     `maven-publish`
+    id("com.gradle.plugin-publish") version "2.0.0"
 }
 
 group = project.property("group") as String
@@ -56,34 +57,74 @@ kotlin {
 // Gradle Plugin Declarations
 // ========================================
 /**
- * Declares programmatic Gradle plugins (Kotlin classes) for registration.
+ * Declares plugins for publication to Gradle Plugin Portal.
  * 
+ * Programmatic Gradle plugins (Kotlin classes) are declared explicitly here.
  * Precompiled script plugins (.gradle.kts files) are automatically discovered
- * by the kotlin-dsl plugin and do not need explicit declaration here.
+ * by the kotlin-dsl plugin and registered with their metadata from the file headers.
  */
 gradlePlugin {
+    // Project-wide metadata (applies to all plugins)
+    website = "https://github.com/Lockbox-AI/gradle-plugins"
+    vcsUrl = "https://github.com/Lockbox-AI/gradle-plugins.git"
+    
     plugins {
+        // ========================================
+        // AWS Integration Plugins (Kotlin Classes)
+        // ========================================
         create("awsEnvironment") {
             id = "io.github.lockboxai.aws-environment"
             displayName = "Lockbox AWS Environment"
-            description = "AWS authentication, role assumption, and environment setup"
+            description = "Provides AWS authentication, role assumption, and environment setup for Gradle builds. Integrates with AWS CodeArtifact and SSM Parameter Store."
             implementationClass = "com.lockbox.gradle.AwsEnvironmentPlugin"
-            tags.set(listOf("aws", "codeartifact", "authentication"))
+            tags.set(listOf("aws", "authentication", "codeartifact", "sts", "ssm"))
         }
         create("codeartifactRepositories") {
             id = "io.github.lockboxai.codeartifact-repositories"
             displayName = "Lockbox CodeArtifact Repositories"
-            description = "Configure Maven repositories for AWS CodeArtifact"
+            description = "Automatically configures Maven repositories for AWS CodeArtifact with authentication. Apply to projects to resolve dependencies from CodeArtifact."
             implementationClass = "com.lockbox.gradle.CodeArtifactRepositoriesPlugin"
-            tags.set(listOf("aws", "codeartifact", "repositories"))
+            tags.set(listOf("aws", "codeartifact", "repositories", "maven", "dependencies"))
         }
         create("codeartifactRepositoriesSettings") {
             id = "io.github.lockboxai.codeartifact-repositories-settings"
             displayName = "Lockbox CodeArtifact Repositories (Settings)"
-            description = "Configure plugin repositories for AWS CodeArtifact in settings"
+            description = "Configures plugin repositories for AWS CodeArtifact in settings.gradle.kts. Apply in settings to resolve Gradle plugins from CodeArtifact."
             implementationClass = "com.lockbox.gradle.CodeArtifactRepositoriesSettingsPlugin"
-            tags.set(listOf("aws", "codeartifact", "repositories"))
+            tags.set(listOf("aws", "codeartifact", "repositories", "plugins", "settings"))
         }
+        
+        // Note: Precompiled script convention plugins (*.gradle.kts) are automatically
+        // registered by the kotlin-dsl plugin. Their metadata is configured below
+        // in an afterEvaluate block after they are registered.
+    }
+}
+
+// ========================================
+// Configure Precompiled Script Plugin Metadata
+// ========================================
+// Precompiled script plugins are auto-registered by kotlin-dsl plugin.
+// We configure their display metadata here for Gradle Plugin Portal publication.
+afterEvaluate {
+    gradlePlugin.plugins.named("io.github.lockboxai.java-conventions") {
+        displayName = "Lockbox Java Conventions"
+        description = "Base Java configuration with quality tools (Checkstyle, PMD, SpotBugs, Spotless), testing setup (JUnit 5, Mockito, AssertJ), JaCoCo coverage, and Maven publishing. Provides consistent Java 21 configuration across projects."
+        tags.set(listOf("java", "conventions", "quality", "testing", "jacoco", "checkstyle", "pmd", "spotbugs"))
+    }
+    gradlePlugin.plugins.named("io.github.lockboxai.module-conventions") {
+        displayName = "Lockbox Module Conventions"
+        description = "Extends java-conventions with Lockbox-specific module configuration. Includes Lombok support, additional quality checks, and framework-specific settings for building Lockbox framework modules."
+        tags.set(listOf("java", "conventions", "module", "lombok", "framework"))
+    }
+    gradlePlugin.plugins.named("io.github.lockboxai.spring-boot-conventions") {
+        displayName = "Lockbox Spring Boot Conventions"
+        description = "Spring Boot application configuration extending java-conventions. Configures Spring Boot Gradle plugin, dependency management, executable JAR/WAR packaging, and Spring-specific testing setup."
+        tags.set(listOf("spring-boot", "spring", "conventions", "java", "application"))
+    }
+    gradlePlugin.plugins.named("io.github.lockboxai.spring-shell-conventions") {
+        displayName = "Lockbox Spring Shell Conventions"
+        description = "Spring Shell CLI application configuration extending spring-boot-conventions. Configures Spring Shell dependencies and CLI-specific packaging for command-line applications."
+        tags.set(listOf("spring-shell", "spring-boot", "cli", "conventions", "java"))
     }
 }
 
