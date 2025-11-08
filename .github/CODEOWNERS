@@ -1,8 +1,8 @@
 # Default owners for everything in the repo
-* @lockboxai/engineering
+* @Lockbox-AI/engineering
 
 # Build and CI/CD configuration
-/.github/ @lockboxai/devops
-/gradle/ @lockboxai/devops
-*.gradle.kts @lockboxai/devops
+/.github/ @jpfulton-lockboxai
+/gradle/ @jpfulton-lockboxai
+*.gradle.kts @jpfulton-lockboxai
 
