@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter
+    xmlns="https://github.com/spotbugs/filter/3.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 
+                        https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
+
+    <!-- Exclude Lombok-generated code from certain warnings -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Class name="~.*Builder"/>
+    </Match>
+
+    <!-- Spring beans are managed by the container - these are false positives -->
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Or>
+            <!-- Spring Framework annotations -->
+            <Class name="~.*" hasAnnotation="org.springframework.stereotype.Component"/>
+            <Class name="~.*" hasAnnotation="org.springframework.stereotype.Service"/>
+            <Class name="~.*" hasAnnotation="org.springframework.stereotype.Repository"/>
+            <Class name="~.*" hasAnnotation="org.springframework.stereotype.Controller"/>
+            <Class name="~.*" hasAnnotation="org.springframework.web.bind.annotation.RestController"/>
+            <Class name="~.*" hasAnnotation="org.springframework.context.annotation.Configuration"/>
+            
+            <!-- Spring Boot annotations -->
+            <Class name="~.*" hasAnnotation="org.springframework.boot.autoconfigure.AutoConfiguration"/>
+            <Class name="~.*" hasAnnotation="org.springframework.boot.context.properties.ConfigurationProperties"/>
+            
+            <!-- Also match by naming convention for backward compatibility -->
+            <Class name="~.*Repository"/>
+            <Class name="~.*Service"/>
+            <Class name="~.*Command"/>
+            <Class name="~.*Controller"/>
+            <Class name="~.*Component"/>
+            <Class name="~.*Configuration"/>
+        </Or>
+    </Match>
+
+    <!-- Spring dependency injection exposes mutable objects by design -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Or>
+            <!-- Spring Framework annotations -->
+            <Class name="~.*" hasAnnotation="org.springframework.stereotype.Component"/>
+            <Class name="~.*" hasAnnotation="org.springframework.stereotype.Service"/>
+            <Class name="~.*" hasAnnotation="org.springframework.stereotype.Repository"/>
+            <Class name="~.*" hasAnnotation="org.springframework.stereotype.Controller"/>
+            <Class name="~.*" hasAnnotation="org.springframework.web.bind.annotation.RestController"/>
+            <Class name="~.*" hasAnnotation="org.springframework.context.annotation.Configuration"/>
+            
+            <!-- Spring Boot annotations -->
+            <Class name="~.*" hasAnnotation="org.springframework.boot.autoconfigure.AutoConfiguration"/>
+            <Class name="~.*" hasAnnotation="org.springframework.boot.context.properties.ConfigurationProperties"/>
+            
+            <!-- Also match by naming convention for backward compatibility -->
+            <Class name="~.*Repository"/>
+            <Class name="~.*Service"/>
+            <Class name="~.*Command"/>
+            <Class name="~.*Controller"/>
+            <Class name="~.*Component"/>
+            <Class name="~.*Configuration"/>
+        </Or>
+    </Match>
+
+    <!--
+        Suppress CT_CONSTRUCTOR_THROW for final classes.
+        If a class is final, it cannot be subclassed, so finalizer attacks are not possible.
+    -->
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="~.*" isFinal="true"/>
+    </Match>
+
+    <!-- Exclude serialization warnings for DTOs and entities -->
+    <Match>
+        <Bug pattern="SE_NO_SERIALVERSIONID"/>
+    </Match>
+
+    <!-- Exclude null pointer warnings for methods returning potentially null values -->
+    <Match>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
+
+    <!-- Exclude test classes from certain checks -->
+    <Match>
+        <Class name="~.*Test"/>
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
+    </Match>
+
+    <!-- Exclude uncallable methods in anonymous classes from test classes (used for annotation scanning tests) -->
+    <Match>
+        <Or>
+            <Class name="~.*Test"/>
+            <Class name="~.*Test\$.*"/>
+        </Or>
+        <Bug pattern="UMAC_UNCALLABLE_METHOD_OF_ANONYMOUS_CLASS"/>
+    </Match>
+
+    <!-- Spring injection patterns are safe - exclude constructor injection warnings -->
+    <Match>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    </Match>
+
+    <!-- Allow SQL strings in repositories -->
+    <Match>
+        <Class name="~.*Repository"/>
+        <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"/>
+    </Match>
+
+    <!-- Allow text blocks with format strings in repositories -->
+    <Match>
+        <Class name="~.*Repository"/>
+        <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
+    </Match>
+
+    <!-- Exclude cache-related classes from constructor throw warnings -->
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Or>
+            <Class name="com.lockbox.framework.cache.DirectRedisCacheManager"/>
+            <Class name="com.lockbox.framework.data.redis.cache.LockboxRedisCacheManager"/>
+            <Class name="com.lockbox.framework.data.redis.cache.LockboxRedisCacheManager$Builder"/>
+            <Class name="com.lockbox.framework.data.redis.config.RedisConfiguration"/>
+            <Class name="com.lockbox.framework.autoconfigure.data.LockboxRedisAutoConfiguration"/>
+        </Or>
+    </Match>
+
+    <!-- Exclude EI_EXPOSE_REP2 for cache-related classes (Spring beans manage these) -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Or>
+            <Class name="com.lockbox.framework.cache.DirectRedisCacheManager"/>
+            <Class name="com.lockbox.framework.data.redis.cache.LockboxRedisCacheManager"/>
+            <Class name="com.lockbox.framework.data.redis.cache.LockboxRedisCacheManager$Builder"/>
+            <Class name="com.lockbox.framework.data.redis.config.RedisConfiguration"/>
+            <Class name="com.lockbox.framework.autoconfigure.data.LockboxRedisAutoConfiguration"/>
+        </Or>
+    </Match>
+
+    <!-- Lombok-generated equals/hashCode methods check @NonNull fields redundantly -->
+    <!-- Expand to cover all classes using Lombok @Value, @Data, @EqualsAndHashCode -->
+    <Match>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+        <Or>
+            <Class name="~.*Page"/>
+            <Class name="~.*TableRecordCounts"/>
+            <!-- Classes with Lombok @Value annotation -->
+            <Class name="~.*" hasAnnotation="lombok.Value"/>
+            <!-- Classes with Lombok @Data annotation -->
+            <Class name="~.*" hasAnnotation="lombok.Data"/>
+            <!-- Classes with Lombok @EqualsAndHashCode annotation -->
+            <Class name="~.*" hasAnnotation="lombok.EqualsAndHashCode"/>
+            <!-- Immutable classes with Lombok patterns -->
+            <Class name="~.*Immutable.*"/>
+        </Or>
+    </Match>
+
+    <!-- Value objects like Page expose their fields intentionally -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+        <Class name="com.lockbox.framework.data.common.pagination.Page"/>
+    </Match>
+
+    <!-- Utility class constants are intentionally public -->
+    <Match>
+        <Bug pattern="MS_PKGPROTECT"/>
+        <Class name="com.lockbox.framework.data.common.pagination.PageUtils"/>
+    </Match>
+
+    <!-- Locale-aware string operations in utility classes -->
+    <Match>
+        <Bug pattern="DM_CONVERT_CASE"/>
+        <Or>
+            <Class name="com.lockbox.framework.data.common.pagination.PageUtils"/>
+            <Class name="com.lockbox.framework.data.common.jdbc.JdbcUtils"/>
+            <!-- Pattern for utility classes -->
+            <Class name="~.*Utils"/>
+            <!-- Test classes may use non-localized string operations -->
+            <Class name="~.*Test"/>
+            <Class name="~.*IntegrationTest"/>
+        </Or>
+    </Match>
+
+    <!-- Test fixtures: intentional mutable static fields and exposed representation -->
+    <Match>
+        <Bug pattern="MS_EXPOSE_REP"/>
+        <Or>
+            <Class name="~.*Fixtures"/>
+            <Class name="~.*Fixture"/>
+            <Class name="~.*Helper"/>
+            <Class name="~.*Generator"/>
+        </Or>
+    </Match>
+
+    <!-- Test fixtures: builder patterns and test data expose internal representation intentionally -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+        <Or>
+            <Class name="~.*Fixtures"/>
+            <Class name="~.*Fixture"/>
+            <Class name="~.*Helper"/>
+            <Class name="~.*Generator"/>
+            <!-- Inner classes/records in test fixtures (e.g., FakeDataGenerator$TenancyHierarchy) -->
+            <!-- Match classes containing $ (inner classes) in fixtures packages -->
+            <Class name="~.*\.fixtures\..*\$.*"/>
+            <!-- Specific match for FakeDataGenerator inner classes -->
+            <Class name="com.lockbox.framework.data.tenancy.fixtures.FakeDataGenerator$TenancyHierarchy"/>
+            <!-- Integration test scenarios -->
+            <Class name="~.*TestScenarios"/>
+            <Class name="~.*Scenario"/>
+            <!-- Inner classes/records in test scenarios (e.g., UnassignedInventoryTestScenarios$ScenarioB) -->
+            <Class name="~.*TestScenarios\$.*"/>
+            <!-- Specific matches for UnassignedInventoryTestScenarios inner classes -->
+            <Class name="com.lockbox.framework.data.inventory.UnassignedInventoryTestScenarios$ScenarioB"/>
+            <Class name="com.lockbox.framework.data.inventory.UnassignedInventoryTestScenarios$ScenarioD"/>
+        </Or>
+    </Match>
+
+    <!-- Immutable domain objects intentionally expose Lists - this is by design for value objects -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+        <Or>
+            <!-- Immutable classes with Lombok patterns -->
+            <Class name="~.*Immutable.*"/>
+        </Or>
+    </Match>
+
+    <!-- TestContainers: container lifecycle managed by @Container annotation -->
+    <Match>
+        <Bug pattern="OBL_UNUSED"/>
+        <Or>
+            <!-- TestContainers support classes -->
+            <Class name="~.*TestContainers.*"/>
+            <Class name="~.*Support"/>
+            <!-- Classes using TestContainers annotations -->
+            <Class name="~.*" hasAnnotation="org.testcontainers.junit.jupiter.Testcontainers"/>
+        </Or>
+    </Match>
+
+    <!-- Exception handling in serialization and cache classes -->
+    <Match>
+        <Bug pattern="REC_CATCH_EXCEPTION"/>
+        <Or>
+            <!-- Serialization classes -->
+            <Class name="~.*Serializer"/>
+            <Class name="~.*Serialization"/>
+            <!-- Cache classes -->
+            <Class name="~.*Cache.*"/>
+            <Class name="~.*Redis.*"/>
+        </Or>
+    </Match>
+
+</FindBugsFilter>

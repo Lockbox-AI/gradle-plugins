@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{projectName}} - Documentation Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: #1e3a8a;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .project-info {
+            background: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .project-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-item {
+            padding: 10px;
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        
+        .info-item strong {
+            display: block;
+            color: #1e3a8a;
+            margin-bottom: 5px;
+        }
+        
+        .modules-section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .modules-section h2 {
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #1e3a8a;
+            padding-bottom: 10px;
+        }
+        
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .module-link {
+            display: block;
+            padding: 20px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.2s;
+            border-left: 4px solid #1e3a8a;
+            position: relative;
+        }
+        
+        .module-link:hover {
+            background: #1e3a8a;
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .module-link:hover .javadoc-link {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .module-link:hover .javadoc-link:hover {
+            background: white;
+            color: #1e3a8a;
+        }
+        
+        .module-link strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.2em;
+            color: inherit;
+        }
+        
+        .module-description {
+            display: block;
+            font-size: 0.95em;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            opacity: 0.85;
+        }
+        
+        .module-link:hover .module-description {
+            opacity: 0.95;
+        }
+        
+        .javadoc-link {
+            display: inline-block;
+            padding: 6px 12px;
+            background: white;
+            color: #1e3a8a;
+            border: 1px solid #1e3a8a;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-top: 4px;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+        }
+        
+        .javadoc-link:hover {
+            background: #1e3a8a;
+            color: white;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .intro-text {
+            background: #dbeafe;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #1e3a8a;
+        }
+        
+        .intro-text p {
+            margin: 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{projectName}}</h1>
+            <p>Multi-Module Documentation Portal - Version {{projectVersion}}</p>
+        </header>
+        
+        <div class="project-info">
+            <h2 style="color: #1e3a8a; margin-bottom: 15px;">Project Information</h2>
+            <div class="project-info-grid">
+                <div class="info-item">
+                    <strong>Version</strong>
+                    {{projectVersion}}
+                </div>
+                <div class="info-item">
+                    <strong>Build Date</strong>
+                    {{buildDate}}
+                </div>
+                <div class="info-item">
+                    <strong>Java Version</strong>
+                    {{javaVersion}}
+                </div>
+                <div class="info-item">
+                    <strong>Gradle Version</strong>
+                    {{gradleVersion}}
+                </div>
+            </div>
+        </div>
+        
+        <div class="modules-section">
+            <h2>📦 Framework Modules</h2>
+            <div class="intro-text">
+                <p>This project contains multiple modules. Click on any module below to view its comprehensive documentation, including quality metrics, test coverage, and detailed reports.</p>
+            </div>
+            <div class="modules-grid">
+                {{moduleList}}
+            </div>
+        </div>
+        
+        <footer>
+            <p>Generated by Gradle {{gradleVersion}} on {{buildDate}}</p>
+            <p>{{projectName}} v{{projectVersion}}</p>
+        </footer>
+    </div>
+</body>
+</html>
+

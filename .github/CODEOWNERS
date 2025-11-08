@@ -1,0 +1,8 @@
+# Default owners for everything in the repo
+* @Lockbox-AI/engineering
+
+# Build and CI/CD configuration
+/.github/ @jpfulton-lockboxai
+/gradle/ @jpfulton-lockboxai
+*.gradle.kts @jpfulton-lockboxai
+

@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<ruleset name="j-standardizer-pmd-rules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 
+                             https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>
+        PMD ruleset for j-standardizer project.
+        Detects code quality issues, potential bugs, and performance problems.
+    </description>
+
+    <!-- Best Practices -->
+    <rule ref="category/java/bestpractices.xml">
+        <!-- Lombok generates these -->
+        <exclude name="AccessorMethodGeneration"/>
+        <!-- Allow builders with many parameters -->
+        <exclude name="AvoidReassigningParameters"/>
+        <!-- JUnit 5 doesn't require public -->
+        <exclude name="JUnit5TestShouldBePackagePrivate"/>
+    </rule>
+
+    <!-- Code Style -->
+    <rule ref="category/java/codestyle.xml">
+        <!-- Lombok handles these -->
+        <exclude name="AtLeastOneConstructor"/>
+        <exclude name="CommentDefaultAccessModifier"/>
+        <exclude name="OnlyOneReturn"/>
+        <!-- Allow short variable names in lambdas and loops -->
+        <exclude name="ShortVariable"/>
+        <exclude name="LongVariable"/>
+        <!-- Allow descriptive method names even if long -->
+        <exclude name="ShortMethodName"/>
+        <!-- Class naming is fine -->
+        <exclude name="ClassNamingConventions"/>
+        <!-- Domain model convention: allow short class names (User, Flag, Form, Page) -->
+        <exclude name="ShortClassName"/>
+        <!-- Allow for local variables in certain contexts -->
+        <exclude name="LocalVariableCouldBeFinal"/>
+        <exclude name="MethodArgumentCouldBeFinal"/>
+    </rule>
+
+    <!-- Design -->
+    <rule ref="category/java/design.xml">
+        <!-- Allow complex builders and DTOs -->
+        <exclude name="DataClass"/>
+        <exclude name="TooManyMethods"/>
+        <exclude name="ExcessiveImports"/>
+        <!-- Lombok generates these -->
+        <exclude name="LawOfDemeter"/>
+        <!-- Allow reasonable complexity -->
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="NPathComplexity"/>
+        <exclude name="CognitiveComplexity"/>
+        <!-- Spring requires non-final classes for CGLIB proxying -->
+        <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal"/>
+    </rule>
+    <rule ref="category/java/design.xml/TooManyFields">
+        <properties>
+            <property name="maxfields" value="20"/>
+        </properties>
+    </rule>
+    <!-- Increase coupling threshold for service classes (allow higher coupling) -->
+    <rule ref="category/java/design.xml/CouplingBetweenObjects">
+        <properties>
+            <property name="threshold" value="15"/>
+        </properties>
+    </rule>
+
+    <!-- Documentation -->
+    <rule ref="category/java/documentation.xml">
+        <!-- We use Checkstyle for Javadoc -->
+        <exclude name="CommentSize"/>
+        <exclude name="CommentRequired"/>
+    </rule>
+
+    <!-- Error Prone -->
+    <rule ref="category/java/errorprone.xml">
+        <!-- Allow null returns in certain cases -->
+        <exclude name="ReturnEmptyCollectionRatherThanNull"/>
+        <!-- Allow assigning null -->
+        <exclude name="NullAssignment"/>
+        <!-- Allow test classes to have only one method -->
+        <exclude name="TestClassWithoutTestCases"/>
+        <!-- Final utility classes don't need static methods -->
+        <exclude name="MissingStaticMethodInNonInstantiatableClass"/>
+        <!-- Lombok immutable patterns: field names matching method names -->
+        <exclude name="AvoidFieldNameMatchingMethodName"/>
+        <!-- Allow field names matching type names (e.g., Page.page) -->
+        <exclude name="AvoidFieldNameMatchingTypeName"/>
+    </rule>
+
+    <!-- Multithreading -->
+    <rule ref="category/java/multithreading.xml">
+        <!-- Spring manages thread safety -->
+        <exclude name="UseConcurrentHashMap"/>
+        <exclude name="DoNotUseThreads"/>
+    </rule>
+
+    <!-- Performance -->
+    <rule ref="category/java/performance.xml">
+        <!-- Allow String instantiation for clarity -->
+        <exclude name="AvoidInstantiatingObjectsInLoops"/>
+    </rule>
+
+    <!-- Security -->
+    <rule ref="category/java/security.xml"/>
+
+</ruleset>

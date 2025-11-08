@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<!--
+    Checkstyle Suppressions Configuration
+    
+    This file allows for suppressing specific Checkstyle violations.
+    Add suppression rules here as needed for specific files or checks.
+    
+    Example suppression:
+    <suppress checks="JavadocMethod" files=".*Test\.java"/>
+-->
+<suppressions>
+    <!-- Suppress HideUtilityClassConstructor for Lombok @UtilityClass annotated classes -->
+    <suppress checks="HideUtilityClassConstructor" files=".*Utils\.java"/>
+
+    <!-- Test files: allow many parameters in test methods and constructors -->
+    <suppress checks="ParameterNumber" files=".*Test\.java"/>
+    <suppress checks="ParameterNumber" files=".*IT\.java"/>
+    <suppress checks="ParameterNumber" files=".*IntegrationTest\.java"/>
+
+    <!-- Test fixtures: allow many parameters for builder patterns -->
+    <suppress checks="ParameterNumber" files=".*Fixtures\.java"/>
+    <suppress checks="ParameterNumber" files=".*Fixture\.java"/>
+    <suppress checks="ParameterNumber" files=".*Helper\.java"/>
+    <suppress checks="ParameterNumber" files=".*Generator\.java"/>
+
+    <!-- Spring configuration classes: allow many parameters in @Bean methods -->
+    <suppress checks="ParameterNumber" files=".*Configuration\.java"/>
+    <suppress checks="ParameterNumber" files=".*Config\.java"/>
+
+    <!-- Enum constructors: allow many parameters for enum initialization -->
+    <suppress checks="ParameterNumber" files=".*Role\.java"/>
+</suppressions>

@@ -1,0 +1,51 @@
+[versions]
+# Java Language Version
+java = "21"
+
+# AWS SDK
+aws-sdk = "2.34.6"
+
+# Gradle Plugins
+spotless = "8.0.0"
+lombok-gradle = "9.0.0"
+spotbugs-gradle = "6.1.1"
+spring-boot = "3.5.7"
+spring-dependency-management = "1.1.7"
+
+# Build Tools
+jacoco = "0.8.11"
+checkstyle = "10.20.2"
+pmd = "7.9.0"
+spotbugs = "4.8.6"
+palantir-java-format = "2.81.0"
+
+# Testing
+junit = "5.11.3"
+mockito = "5.14.2"
+assertj = "3.26.3"
+
+[libraries]
+# AWS SDK BOM
+aws-sdk-bom = { group = "software.amazon.awssdk", name = "bom", version.ref = "aws-sdk" }
+
+# AWS SDK Libraries (versions managed by BOM)
+aws-s3 = { group = "software.amazon.awssdk", name = "s3" }
+aws-apache-client = { group = "software.amazon.awssdk", name = "apache-client" }
+aws-codeartifact = { group = "software.amazon.awssdk", name = "codeartifact" }
+aws-sts = { group = "software.amazon.awssdk", name = "sts" }
+aws-ssm = { group = "software.amazon.awssdk", name = "ssm" }
+
+# Gradle Plugin Dependencies
+spotless-plugin = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless" }
+lombok-plugin = { group = "io.freefair.gradle", name = "lombok-plugin", version.ref = "lombok-gradle" }
+spotbugs-plugin = { group = "com.github.spotbugs.snom", name = "spotbugs-gradle-plugin", version.ref = "spotbugs-gradle" }
+spring-boot-plugin = { group = "org.springframework.boot", name = "spring-boot-gradle-plugin", version.ref = "spring-boot" }
+dependency-management-plugin = { group = "io.spring.gradle", name = "dependency-management-plugin", version.ref = "spring-dependency-management" }
+
+[plugins]
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+lombok-gradle = { id = "io.freefair.lombok", version.ref = "lombok-gradle" }
+spotbugs-gradle = { id = "com.github.spotbugs", version.ref = "spotbugs-gradle" }
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+
