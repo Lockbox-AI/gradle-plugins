@@ -31,3 +31,6 @@ tmp/
 
 # Ignore macOS files
 .DS_Store
+
+# Environment configuration (contains sensitive AWS account information)
+.env

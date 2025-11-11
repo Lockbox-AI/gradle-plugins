@@ -153,7 +153,60 @@ java {
 }
 
 publishing {
-    repositories {
-        mavenLocal()
+    publications {
+        create<MavenPublication>("pluginMaven") {
+            // The java-gradle-plugin automatically creates publications for each plugin
+            // We add this publication for consistency with our convention patterns
+        }
+    }
+}
+
+// Configure repositories AFTER project version is determined
+// This ensures version-based routing happens after version is set
+afterEvaluate {
+    publishing {
+        repositories {
+            // Publish to mavenLocal when PUBLISH_TO_MAVEN_LOCAL=true, otherwise to CodeArtifact
+            if (System.getenv("PUBLISH_TO_MAVEN_LOCAL") == "true") {
+                mavenLocal()
+            } else {
+                maven {
+                    name = "CodeArtifact"
+                    
+                    // Get configuration from environment variables (set by publish.sh script)
+                    val codeartifactDomain = System.getenv("CODEARTIFACT_DOMAIN") ?: ""
+                    val codeartifactAccountId = System.getenv("CODEARTIFACT_ACCOUNT_ID") ?: ""
+                    val codeartifactRegion = System.getenv("CODEARTIFACT_REGION") ?: "us-east-1"
+                    val codeartifactToken = System.getenv("CODEARTIFACT_AUTH_TOKEN") ?: ""
+                    
+                    // Route to releases repository (plugins should always be releases, not snapshots)
+                    val repositoryName = System.getenv("CODEARTIFACT_JAVA_REPOSITORY") ?: "releases"
+                    
+                    url = uri("https://$codeartifactDomain-$codeartifactAccountId.d.codeartifact.$codeartifactRegion.amazonaws.com/maven/$repositoryName/")
+                    
+                    credentials {
+                        username = "aws"
+                        password = codeartifactToken
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Only enable publishing if CodeArtifact token is available OR publishing to mavenLocal
+tasks.withType<PublishToMavenRepository>().configureEach {
+    val codeartifactToken = System.getenv("CODEARTIFACT_AUTH_TOKEN") ?: ""
+    val publishToMavenLocal = System.getenv("PUBLISH_TO_MAVEN_LOCAL") == "true"
+    
+    // Enable publishing if either CodeArtifact token is present OR publishing to mavenLocal
+    enabled = codeartifactToken.isNotEmpty() || publishToMavenLocal
+    
+    doFirst {
+        if (publishToMavenLocal) {
+            println("Publishing ${project.group}:${project.name}:${project.version} to local Maven repository")
+        } else {
+            println("Publishing ${project.group}:${project.name}:${project.version} to CodeArtifact releases repository")
+        }
     }
 }
