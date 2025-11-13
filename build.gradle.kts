@@ -166,10 +166,9 @@ publishing {
 afterEvaluate {
     publishing {
         repositories {
-            // Publish to mavenLocal when PUBLISH_TO_MAVEN_LOCAL=true, otherwise to CodeArtifact
-            if (System.getenv("PUBLISH_TO_MAVEN_LOCAL") == "true") {
-                mavenLocal()
-            } else {
+            // Always add CodeArtifact repository when token is available
+            val codeartifactToken = System.getenv("CODEARTIFACT_AUTH_TOKEN") ?: ""
+            if (codeartifactToken.isNotEmpty()) {
                 maven {
                     name = "CodeArtifact"
                     
@@ -177,7 +176,6 @@ afterEvaluate {
                     val codeartifactDomain = System.getenv("CODEARTIFACT_DOMAIN") ?: ""
                     val codeartifactAccountId = System.getenv("CODEARTIFACT_ACCOUNT_ID") ?: ""
                     val codeartifactRegion = System.getenv("CODEARTIFACT_REGION") ?: "us-east-1"
-                    val codeartifactToken = System.getenv("CODEARTIFACT_AUTH_TOKEN") ?: ""
                     
                     // Route to releases repository (plugins should always be releases, not snapshots)
                     val repositoryName = System.getenv("CODEARTIFACT_JAVA_REPOSITORY") ?: "releases"
@@ -189,6 +187,11 @@ afterEvaluate {
                         password = codeartifactToken
                     }
                 }
+            }
+            
+            // Add mavenLocal when PUBLISH_TO_MAVEN_LOCAL=true
+            if (System.getenv("PUBLISH_TO_MAVEN_LOCAL") == "true") {
+                mavenLocal()
             }
         }
     }

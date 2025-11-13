@@ -557,10 +557,11 @@ publishing {
 afterEvaluate {
     publishing {
         repositories {
-            // Publish to mavenLocal when PUBLISH_TO_MAVEN_LOCAL=true, otherwise to CodeArtifact
-            if (System.getenv("PUBLISH_TO_MAVEN_LOCAL") == "true") {
-                mavenLocal()
-            } else {
+            // Always add CodeArtifact repository when token is available
+            val codeartifactToken = project.findProperty("codeartifact.authToken")?.toString() 
+                ?: System.getenv("CODEARTIFACT_AUTH_TOKEN") 
+                ?: ""
+            if (codeartifactToken.isNotEmpty()) {
                 maven {
                     name = "CodeArtifact"
                     
@@ -574,9 +575,6 @@ afterEvaluate {
                     val codeartifactRegion = project.findProperty("aws.region")?.toString() 
                         ?: System.getenv("AWS_REGION") 
                         ?: "us-east-1"
-                    val codeartifactToken = project.findProperty("codeartifact.authToken")?.toString() 
-                        ?: System.getenv("CODEARTIFACT_AUTH_TOKEN") 
-                        ?: ""
                     
                     // Route to snapshots or releases repository based on version
                     // NOW version is correctly set after project evaluation
@@ -597,6 +595,11 @@ afterEvaluate {
                         password = codeartifactToken
                     }
                 }
+            }
+            
+            // Add mavenLocal when PUBLISH_TO_MAVEN_LOCAL=true
+            if (System.getenv("PUBLISH_TO_MAVEN_LOCAL") == "true") {
+                mavenLocal()
             }
         }
     }
