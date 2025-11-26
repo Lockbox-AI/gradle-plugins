@@ -112,6 +112,80 @@ For local development and testing:
 ./gradlew publishToMavenLocal
 ```
 
+Or using the publish script:
+
+```bash
+PUBLISH_TO_MAVEN_LOCAL=true ./publish.sh
+```
+
+### Publishing to AWS CodeArtifact
+
+For publishing to your organization's private AWS CodeArtifact repository:
+
+#### Prerequisites
+
+- AWS CLI installed and configured with appropriate credentials
+- Access to the AWS CodeArtifact domain and repository
+- `.env` file configured with your CodeArtifact settings
+
+#### Setup
+
+1. **Copy the environment template**:
+
+```bash
+cp .env.template .env
+```
+
+2. **Edit `.env` with your AWS CodeArtifact configuration**:
+
+```bash
+CODEARTIFACT_DOMAIN=your-domain
+CODEARTIFACT_ACCOUNT_ID=123456789012
+CODEARTIFACT_REGION=us-east-1
+CODEARTIFACT_JAVA_REPOSITORY=your-releases-repo
+```
+
+**Security Note:** The `.env` file is git-ignored and will never be committed to version control. It contains your organization's AWS account information.
+
+#### Publishing
+
+Simply run the publish script:
+
+```bash
+./publish.sh
+```
+
+The script will:
+1. Load configuration from `.env`
+2. Obtain a CodeArtifact authorization token using AWS CLI
+3. Build the plugins
+4. Publish to your CodeArtifact releases repository
+
+#### What Gets Published
+
+The script publishes all 7 plugins to CodeArtifact:
+- `io.github.lockboxai:lockbox-gradle-plugins:VERSION` (the plugin JAR)
+- All plugin metadata and marker artifacts
+- Sources and Javadoc JARs
+
+#### Troubleshooting
+
+If publishing fails:
+
+1. **Check AWS credentials**: Ensure your AWS CLI is configured correctly
+   ```bash
+   aws sts get-caller-identity
+   ```
+
+2. **Verify CodeArtifact access**: Test that you can access the domain
+   ```bash
+   aws codeartifact list-repositories --domain your-domain --region your-region
+   ```
+
+3. **Check `.env` file**: Ensure all required variables are set correctly
+
+4. **Review build logs**: The script provides detailed output for debugging
+
 ### Publishing to Gradle Plugin Portal
 
 #### Prerequisites
