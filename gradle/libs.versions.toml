@@ -9,7 +9,7 @@ aws-sdk = "2.34.6"
 spotless = "8.0.0"
 lombok-gradle = "9.0.0"
 spotbugs-gradle = "6.1.1"
-spring-boot = "3.5.7"
+spring-boot = "3.5.8"
 spring-dependency-management = "1.1.7"
 
 # Build Tools
