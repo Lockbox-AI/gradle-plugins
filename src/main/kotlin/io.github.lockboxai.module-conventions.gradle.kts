@@ -69,8 +69,9 @@ dependencies {
         exclude(mapOf("group" to "org.yaml", "module" to "snakeyaml"))
     }
     add("integrationTestImplementation", "org.yaml:snakeyaml")
+    // Testcontainers 2.x uses testcontainers- prefix for module artifacts
     add("integrationTestImplementation", "org.testcontainers:testcontainers")
-    add("integrationTestImplementation", "org.testcontainers:junit-jupiter")
+    add("integrationTestImplementation", "org.testcontainers:testcontainers-junit-jupiter")
     add("integrationTestImplementation", "com.h2database:h2")
     add("integrationTestImplementation", "org.awaitility:awaitility")
     
