@@ -62,6 +62,8 @@ dependencies {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     testImplementation("org.yaml:snakeyaml")
+    // DataFaker for test data generation
+    testImplementation("net.datafaker:datafaker")
     
     // Integration test dependencies - versions managed by framework-platform BOM
     add("integrationTestImplementation", "org.springframework.boot:spring-boot-starter-test") {
@@ -74,6 +76,8 @@ dependencies {
     add("integrationTestImplementation", "org.testcontainers:testcontainers-junit-jupiter")
     add("integrationTestImplementation", "com.h2database:h2")
     add("integrationTestImplementation", "org.awaitility:awaitility")
+    // DataFaker for test data generation
+    add("integrationTestImplementation", "net.datafaker:datafaker")
     
     // Note: Modules should declare their own additional implementation dependencies
     // (e.g., commons-lang3) as needed. This provides standard test dependencies.
@@ -106,6 +110,11 @@ plugins.withId("java-test-fixtures") {
         val javafakerDep = project.dependencies.create("com.github.javafaker:javafaker")
         (javafakerDep as ModuleDependency).exclude(mapOf("group" to "org.yaml", "module" to "snakeyaml"))
         add("testFixturesImplementation", javafakerDep)
+
+        // DataFaker for test data generation
+        // Version managed by framework-platform BOM
+        val datafakerDep = project.dependencies.create("net.datafaker:datafaker")
+        add("testFixturesImplementation", datafakerDep)
     }
 }
 
