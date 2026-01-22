@@ -1,3 +1,5 @@
+import com.lockbox.gradle.utils.FrameworkPlatformResolver
+
 /**
  * Lockbox Spring Boot Conventions Plugin
  * 
@@ -34,14 +36,9 @@ dependencies {
     if (rootProject.findProject(":framework-platform") != null) {
         implementation(platform(project(":framework-platform")))
     } else {
-        // Fall back to Maven coordinate for published plugins
-        // Use ARTIFACT_VERSION if set (coordinated by build script), 
-        // otherwise read from gradle.properties, 
-        // finally fall back to rootProject.version
-        val platformVersion = System.getenv("ARTIFACT_VERSION")
-            ?: findProperty("frameworkPlatformVersion")?.toString() 
-            ?: rootProject.version.toString()
-        implementation(platform("com.lockbox:framework-platform:${platformVersion}"))
+        // Fall back to Maven coordinate for external consumers
+        // Version resolution handled by FrameworkPlatformResolver (version catalog -> env var -> property)
+        implementation(platform(FrameworkPlatformResolver.getMavenCoordinate(project)))
     }
     
     // JavaX Annotations (required for Lombok @Generated annotation)
