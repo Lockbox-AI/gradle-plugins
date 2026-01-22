@@ -12,8 +12,8 @@
 # - Gradle wrapper (./gradlew) available
 #
 # Usage:
-#   ./publish.sh              - Publish to CodeArtifact
-#   PUBLISH_TO_MAVEN_LOCAL=true ./publish.sh  - Publish to local Maven (~/.m2)
+#   ./publish.sh                - Publish to CodeArtifact
+#   ./publish.sh --publish-local - Publish to local Maven (~/.m2)
 #
 ##############################################################################
 
@@ -29,6 +29,32 @@ NC='\033[0m' # No Color
 
 # Script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Parse command-line arguments
+PUBLISH_LOCAL=false
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --publish-local)
+            PUBLISH_LOCAL=true
+            shift
+            ;;
+        -h|--help)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --publish-local  Publish to local Maven repository (~/.m2)"
+            echo "  -h, --help       Show this help message"
+            echo ""
+            echo "Without options, publishes to AWS CodeArtifact."
+            exit 0
+            ;;
+        *)
+            echo -e "${RED}ERROR: Unknown option: $1${NC}"
+            echo "Use --help for usage information."
+            exit 1
+            ;;
+    esac
+done
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}Lockbox Gradle Plugins - Publish${NC}"
@@ -83,7 +109,7 @@ echo "  Repository: ${CODEARTIFACT_JAVA_REPOSITORY}"
 echo ""
 
 # Check if publishing to local Maven or CodeArtifact
-if [ "${PUBLISH_TO_MAVEN_LOCAL:-false}" = "true" ]; then
+if [ "${PUBLISH_LOCAL}" = "true" ]; then
     echo -e "${YELLOW}Publishing to local Maven repository (~/.m2/repository)${NC}"
     echo ""
 else
@@ -126,7 +152,7 @@ echo -e "${GREEN}✓ Publish completed successfully!${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 
-if [ "${PUBLISH_TO_MAVEN_LOCAL:-false}" = "true" ]; then
+if [ "${PUBLISH_LOCAL}" = "true" ]; then
     echo "Artifacts published to: ~/.m2/repository/io/github/lockboxai/"
 else
     echo "Artifacts published to: ${CODEARTIFACT_DOMAIN}/${CODEARTIFACT_JAVA_REPOSITORY}"
