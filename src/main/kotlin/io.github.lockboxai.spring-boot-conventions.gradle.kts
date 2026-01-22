@@ -32,11 +32,20 @@ plugins {
 
 dependencies {
     // Import the framework platform for version management
-    // Use project reference when available (in multi-project builds)
-    if (rootProject.findProject(":framework-platform") != null) {
+    // 
+    // The plugin handles three scenarios:
+    // 1. Building lockbox-framework itself - use project() reference
+    // 2. Composite build including lockbox-framework - platform resolved transitively
+    // 3. External consumers - platform added via Maven coordinate
+    //
+    val isFrameworkBuild = rootProject.name == "lockbox-framework"
+    val isCompositeBuildWithFramework = rootProject.findProject(":lockbox-framework") != null
+    
+    if (isFrameworkBuild) {
+        // Building lockbox-framework itself - use project reference
         implementation(platform(project(":framework-platform")))
-    } else {
-        // Fall back to Maven coordinate for external consumers
+    } else if (!isCompositeBuildWithFramework) {
+        // External consumer without composite build - add platform via Maven coordinate
         // Version resolution handled by FrameworkPlatformResolver (version catalog -> env var -> property)
         implementation(platform(FrameworkPlatformResolver.getMavenCoordinate(project)))
     }
