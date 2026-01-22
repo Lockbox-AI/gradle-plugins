@@ -1,4 +1,4 @@
-import com.lockbox.gradle.utils.FrameworkPlatformResolver
+import com.lockbox.gradle.utils.FrameworkDependencyManager
 
 /**
  * Lockbox Spring Boot Conventions Plugin
@@ -6,15 +6,18 @@ import com.lockbox.gradle.utils.FrameworkPlatformResolver
  * This convention plugin defines shared configuration for Spring Boot applications.
  * It builds on top of lockbox.gradle.plugins.java-conventions and adds:
  * - Lombok plugin application
- * - Standard module dependencies (javax-annotations, commons-lang3, test frameworks)
- * - Framework-platform BOM for dependency version management
+ * - Spring Dependency Management for automatic version control
+ * - Standard module dependencies (javax-annotations)
  * 
  * Spring Boot applications using this plugin should explicitly apply:
  * - org.springframework.boot plugin
- * - io.spring.dependency-management plugin
  * 
- * This keeps the convention plugin generic and allows consuming projects to choose
- * their Spring Boot version independently.
+ * Dependency versions are automatically managed by this plugin:
+ * - In composite builds: Parses lockbox-framework/gradle/libs.versions.toml directly
+ * - In published builds: Imports com.lockbox:framework-platform BOM
+ * 
+ * This uses Spring Dependency Management Plugin's Maven-style dependency management
+ * which avoids Gradle's java-platform variant issues in composite builds.
  */
 
 plugins {
@@ -24,38 +27,32 @@ plugins {
     // Apply Lombok plugin for all Spring Boot applications
     // This is applied here (not in java-conventions) to avoid Gradle 9.2.0 Tooling API issues
     id("io.freefair.lombok")
+    
+    // Apply Spring Dependency Management plugin for Maven-style version management
+    // This avoids Gradle's java-platform variant issues in composite builds
+    id("io.spring.dependency-management")
 }
+
+// ========================================
+// Dependency Version Management
+// ========================================
+// Configure dependency management based on build context.
+// For Spring Boot applications, versions are automatically managed via
+// Spring Dependency Management Plugin, which handles both composite builds
+// and published artifact scenarios seamlessly.
+
+FrameworkDependencyManager.configureDependencyManagement(project, logger)
 
 // ========================================
 // Standard Module Dependencies
 // ========================================
+// Versions are automatically managed by Spring Dependency Management plugin
 
 dependencies {
-    // Import the framework platform for version management
-    // 
-    // The plugin handles three scenarios:
-    // 1. Building lockbox-framework itself - use project() reference
-    // 2. Composite build including lockbox-framework - platform resolved transitively
-    // 3. External consumers - platform added via Maven coordinate
-    //
-    val isFrameworkBuild = rootProject.name == "lockbox-framework"
-    val isCompositeBuildWithFramework = rootProject.findProject(":lockbox-framework") != null
-    
-    if (isFrameworkBuild) {
-        // Building lockbox-framework itself - use project reference
-        implementation(platform(project(":framework-platform")))
-    } else if (!isCompositeBuildWithFramework) {
-        // External consumer without composite build - add platform via Maven coordinate
-        // Version resolution handled by FrameworkPlatformResolver (version catalog -> env var -> property)
-        implementation(platform(FrameworkPlatformResolver.getMavenCoordinate(project)))
-    }
-    
     // JavaX Annotations (required for Lombok @Generated annotation)
-    // Version is managed by framework-platform BOM
     compileOnly("javax.annotation:javax.annotation-api")
     
     // Lombok (required for annotation processing)
-    // Version is managed by framework-platform BOM
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     

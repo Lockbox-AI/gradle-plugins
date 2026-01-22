@@ -1,18 +1,25 @@
 import com.lockbox.gradle.tasks.GenerateSiteTask
-import com.lockbox.gradle.utils.FrameworkPlatformResolver
+import com.lockbox.gradle.utils.FrameworkDependencyManager
 
 /**
  * Lockbox Module Conventions Plugin
  * 
- * This convention plugin defines shared configuration for all Lockbox non-framework modules.
+ * This convention plugin defines shared configuration for all Lockbox modules.
  * It builds on top of lockbox.gradle.plugins.java-conventions and adds:
  * - Lombok plugin application
- * - Standard module dependencies (javax-annotations, commons-lang3, test frameworks)
+ * - Spring Dependency Management for version control
+ * - Standard module dependencies (javax-annotations, test frameworks)
  * - Maven publishing conventions with automatic artifactId and POM naming
  * - Site generation and documentation publishing
  * 
  * All modules applying this plugin will have consistent build behavior and publishing configuration.
- * Dependency versions are managed by the framework-platform BOM.
+ * 
+ * Dependency versions are automatically managed by this plugin:
+ * - In composite builds: Parses lockbox-framework/gradle/libs.versions.toml directly
+ * - In published builds: Imports com.lockbox:framework-platform BOM
+ * 
+ * NOTE: lockbox-framework modules should still declare platform(project(":framework-platform"))
+ * for internal builds, but external consumers get automatic version management.
  */
 
 plugins {
@@ -22,77 +29,62 @@ plugins {
     // Apply Lombok plugin for all modules
     // This is applied here (not in java-conventions) to avoid Gradle 9.2.0 Tooling API issues
     id("io.freefair.lombok")
+    
+    // Apply Spring Dependency Management plugin for Maven-style version management
+    // This avoids Gradle's java-platform variant issues in composite builds
+    id("io.spring.dependency-management")
+}
+
+// ========================================
+// Dependency Version Management
+// ========================================
+// Configure dependency management based on build context:
+// - lockbox-framework internal builds: Use platform(project(":framework-platform"))
+// - External consumers (composite or published): Use Spring Dependency Management
+
+val isFrameworkBuild = rootProject.name == "lockbox-framework"
+logger.lifecycle("module-conventions: project=${project.name}, rootProject=${rootProject.name}, isFrameworkBuild=$isFrameworkBuild")
+
+if (!isFrameworkBuild) {
+    // External consumer - configure via Spring Dependency Management Plugin
+    // This handles both composite builds and published artifact scenarios
+    FrameworkDependencyManager.configureDependencyManagement(project, logger)
+} else {
+    logger.lifecycle("module-conventions: Skipping FrameworkDependencyManager for framework build, using platform(project(:framework-platform))")
 }
 
 // ========================================
 // Standard Module Dependencies
 // ========================================
+// Versions are automatically managed by Spring Dependency Management plugin
+// (configured above via FrameworkDependencyManager)
 
 dependencies {
-    // Import the framework platform for version management
-    // 
-    // The plugin handles three scenarios:
-    // 1. Building lockbox-framework itself (rootProject.name == "lockbox-framework")
-    //    - Uses platform(project(":framework-platform")) directly
-    //    - This works because we're in the same Gradle build
-    //
-    // 2. Composite build including lockbox-framework (findProject(":lockbox-framework") != null)
-    //    - The included lockbox-framework modules use their own project references
-    //    - This project (the consumer) shouldn't add the platform dependency
-    //    - It gets version management transitively from lockbox module dependencies
-    //
-    // 3. External consumers NOT using composite builds
-    //    - Plugin adds the platform dependency via Maven coordinate
-    //    - Consumers must have the version in their version catalog, env var, or gradle.properties
-    //
-    val isFrameworkBuild = rootProject.name == "lockbox-framework"
-    val isCompositeBuildWithFramework = rootProject.findProject(":lockbox-framework") != null
-    
-    if (isFrameworkBuild) {
-        // Building lockbox-framework itself - use project reference
-        implementation(platform(project(":framework-platform")))
-        testImplementation(platform(project(":framework-platform")))
-        add("integrationTestImplementation", platform(project(":framework-platform")))
-    } else if (!isCompositeBuildWithFramework) {
-        // External consumer without composite build - add platform via Maven coordinate
-        // Version resolution handled by FrameworkPlatformResolver (version catalog -> env var -> property)
-        val platformCoordinate = FrameworkPlatformResolver.getMavenCoordinate(project)
-        implementation(platform(platformCoordinate))
-        testImplementation(platform(platformCoordinate))
-        add("integrationTestImplementation", platform(platformCoordinate))
-    }
-    // For composite builds with framework: platform is resolved transitively via lockbox module dependencies
-    
     // JavaX Annotations (required for Lombok @Generated annotation)
-    // Version is managed by framework-platform BOM
     compileOnly("javax.annotation:javax.annotation-api")
     
     // Lombok (required for annotation processing)
-    // Version is managed by framework-platform BOM
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     
-    // Test dependencies - versions managed by framework-platform BOM
+    // Test dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     testImplementation("org.yaml:snakeyaml")
-    // DataFaker for test data generation
     testImplementation("net.datafaker:datafaker")
     
-    // Integration test dependencies - versions managed by framework-platform BOM
+    // Integration test dependencies
     add("integrationTestImplementation", "org.springframework.boot:spring-boot-starter-test") {
         exclude(mapOf("group" to "org.junit.vintage", "module" to "junit-vintage-engine"))
         exclude(mapOf("group" to "org.yaml", "module" to "snakeyaml"))
     }
     add("integrationTestImplementation", "org.yaml:snakeyaml")
-    // Testcontainers 2.x uses testcontainers- prefix for module artifacts
     add("integrationTestImplementation", "org.testcontainers:testcontainers")
     add("integrationTestImplementation", "org.testcontainers:testcontainers-junit-jupiter")
     add("integrationTestImplementation", "com.h2database:h2")
     add("integrationTestImplementation", "org.awaitility:awaitility")
-    // DataFaker for test data generation
     add("integrationTestImplementation", "net.datafaker:datafaker")
     
     // Note: Modules should declare their own additional implementation dependencies
@@ -102,23 +94,11 @@ dependencies {
 // ========================================
 // Test Fixtures Standard Dependencies
 // ========================================
+// Versions are automatically managed by Spring Dependency Management plugin
 
 // Apply test fixtures dependencies when the java-test-fixtures plugin is present
 plugins.withId("java-test-fixtures") {
     dependencies {
-        // Platform BOM for version management - same detection logic as main dependencies block
-        val isFrameworkBuild = rootProject.name == "lockbox-framework"
-        val isCompositeBuildWithFramework = rootProject.findProject(":lockbox-framework") != null
-        
-        if (isFrameworkBuild) {
-            // Building lockbox-framework itself - use project reference
-            add("testFixturesImplementation", platform(project(":framework-platform")))
-        } else if (!isCompositeBuildWithFramework) {
-            // External consumer without composite build - use Maven coordinate
-            val platformCoordinate = FrameworkPlatformResolver.getMavenCoordinate(project)
-            add("testFixturesImplementation", platform(platformCoordinate))
-        }
-        
         // Lombok support for testFixtures
         add("testFixturesCompileOnly", "javax.annotation:javax.annotation-api")
         add("testFixturesCompileOnly", "org.projectlombok:lombok")
@@ -132,13 +112,11 @@ plugins.withId("java-test-fixtures") {
         add("testFixturesImplementation", project(":lockbox-core"))
         
         // JavaFaker for test data generation
-        // Version managed by framework-platform BOM
         val javafakerDep = project.dependencies.create("com.github.javafaker:javafaker")
         (javafakerDep as ModuleDependency).exclude(mapOf("group" to "org.yaml", "module" to "snakeyaml"))
         add("testFixturesImplementation", javafakerDep)
 
         // DataFaker for test data generation
-        // Version managed by framework-platform BOM
         val datafakerDep = project.dependencies.create("net.datafaker:datafaker")
         add("testFixturesImplementation", datafakerDep)
     }
