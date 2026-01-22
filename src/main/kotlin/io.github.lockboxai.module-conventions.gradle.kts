@@ -50,7 +50,28 @@ if (!isFrameworkBuild) {
     // This handles both composite builds and published artifact scenarios
     FrameworkDependencyManager.configureDependencyManagement(project, logger)
 } else {
-    logger.lifecycle("module-conventions: Skipping FrameworkDependencyManager for framework build, using platform(project(:framework-platform))")
+    logger.lifecycle("module-conventions: Framework build - applying platform to all configurations")
+    
+    // For framework builds, apply the platform to ALL configurations including testFixtures
+    // This ensures versionless dependencies in this plugin get resolved
+    val platformDep = dependencies.platform(project(":framework-platform"))
+    
+    dependencies {
+        add("implementation", platformDep)
+        add("testImplementation", platformDep)
+        add("annotationProcessor", platformDep)
+        add("integrationTestImplementation", platformDep)
+        add("integrationTestAnnotationProcessor", platformDep)
+    }
+    
+    // Apply platform to testFixtures configurations when that plugin is present
+    plugins.withId("java-test-fixtures") {
+        dependencies {
+            add("testFixturesImplementation", platformDep)
+            add("testFixturesCompileOnly", platformDep)
+            add("testFixturesAnnotationProcessor", platformDep)
+        }
+    }
 }
 
 // ========================================
