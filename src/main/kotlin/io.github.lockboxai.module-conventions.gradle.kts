@@ -1,4 +1,5 @@
 import com.lockbox.gradle.tasks.GenerateSiteTask
+import com.lockbox.gradle.utils.FrameworkPlatformResolver
 
 /**
  * Lockbox Module Conventions Plugin
@@ -35,16 +36,12 @@ dependencies {
         testImplementation(platform(project(":framework-platform")))
         add("integrationTestImplementation", platform(project(":framework-platform")))
     } else {
-        // Fall back to Maven coordinate for published plugins
-        // Use ARTIFACT_VERSION if set (coordinated by build script), 
-        // otherwise read from gradle.properties, 
-        // finally fall back to rootProject.version
-        val platformVersion = System.getenv("ARTIFACT_VERSION")
-            ?: findProperty("frameworkPlatformVersion")?.toString() 
-            ?: rootProject.version.toString()
-        implementation(platform("com.lockbox:framework-platform:${platformVersion}"))
-        testImplementation(platform("com.lockbox:framework-platform:${platformVersion}"))
-        add("integrationTestImplementation", platform("com.lockbox:framework-platform:${platformVersion}"))
+        // Fall back to Maven coordinate for external consumers
+        // Version resolution handled by FrameworkPlatformResolver (version catalog -> env var -> property)
+        val platformCoordinate = FrameworkPlatformResolver.getMavenCoordinate(project)
+        implementation(platform(platformCoordinate))
+        testImplementation(platform(platformCoordinate))
+        add("integrationTestImplementation", platform(platformCoordinate))
     }
     
     // JavaX Annotations (required for Lombok @Generated annotation)
