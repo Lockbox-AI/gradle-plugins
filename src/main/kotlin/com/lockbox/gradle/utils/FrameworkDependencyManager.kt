@@ -40,14 +40,8 @@ object FrameworkDependencyManager {
     private const val PLATFORM_GROUP = "com.lockbox"
     private const val PLATFORM_ARTIFACT = "framework-platform"
 
-    /** Library names that represent BOMs to import (not dependency constraints). */
-    private val BOM_LIBRARY_NAMES = setOf(
-        "spring-boot-bom",
-        "spring-cloud-aws-bom",
-        "aws-sdk-bom",
-        "aws-xray-bom",
-        "opentelemetry-bom"
-    )
+    /** Suffix used to identify BOM libraries in the version catalog (convention-based detection). */
+    private const val BOM_SUFFIX = "-bom"
 
     /**
      * Configures dependency management for the given project.
@@ -210,7 +204,7 @@ object FrameworkDependencyManager {
         val dependencies = mutableMapOf<String, String>()
         
         parseLibrariesSection(content, versions, logger).forEach { (name, coordinates) ->
-            if (BOM_LIBRARY_NAMES.contains(name)) {
+            if (name.endsWith(BOM_SUFFIX)) {
                 boms[name] = coordinates
             } else {
                 dependencies[name] = coordinates
