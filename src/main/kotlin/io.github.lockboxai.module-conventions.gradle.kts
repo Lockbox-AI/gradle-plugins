@@ -30,19 +30,38 @@ plugins {
 
 dependencies {
     // Import the framework platform for version management
-    // Use project reference when available (in multi-project builds)
-    if (rootProject.findProject(":framework-platform") != null) {
+    // 
+    // The plugin handles three scenarios:
+    // 1. Building lockbox-framework itself (rootProject.name == "lockbox-framework")
+    //    - Uses platform(project(":framework-platform")) directly
+    //    - This works because we're in the same Gradle build
+    //
+    // 2. Composite build including lockbox-framework (findProject(":lockbox-framework") != null)
+    //    - The included lockbox-framework modules use their own project references
+    //    - This project (the consumer) shouldn't add the platform dependency
+    //    - It gets version management transitively from lockbox module dependencies
+    //
+    // 3. External consumers NOT using composite builds
+    //    - Plugin adds the platform dependency via Maven coordinate
+    //    - Consumers must have the version in their version catalog, env var, or gradle.properties
+    //
+    val isFrameworkBuild = rootProject.name == "lockbox-framework"
+    val isCompositeBuildWithFramework = rootProject.findProject(":lockbox-framework") != null
+    
+    if (isFrameworkBuild) {
+        // Building lockbox-framework itself - use project reference
         implementation(platform(project(":framework-platform")))
         testImplementation(platform(project(":framework-platform")))
         add("integrationTestImplementation", platform(project(":framework-platform")))
-    } else {
-        // Fall back to Maven coordinate for external consumers
+    } else if (!isCompositeBuildWithFramework) {
+        // External consumer without composite build - add platform via Maven coordinate
         // Version resolution handled by FrameworkPlatformResolver (version catalog -> env var -> property)
         val platformCoordinate = FrameworkPlatformResolver.getMavenCoordinate(project)
         implementation(platform(platformCoordinate))
         testImplementation(platform(platformCoordinate))
         add("integrationTestImplementation", platform(platformCoordinate))
     }
+    // For composite builds with framework: platform is resolved transitively via lockbox module dependencies
     
     // JavaX Annotations (required for Lombok @Generated annotation)
     // Version is managed by framework-platform BOM
@@ -87,8 +106,18 @@ dependencies {
 // Apply test fixtures dependencies when the java-test-fixtures plugin is present
 plugins.withId("java-test-fixtures") {
     dependencies {
-        // Platform BOM for version management
-        add("testFixturesImplementation", platform(project(":framework-platform")))
+        // Platform BOM for version management - same detection logic as main dependencies block
+        val isFrameworkBuild = rootProject.name == "lockbox-framework"
+        val isCompositeBuildWithFramework = rootProject.findProject(":lockbox-framework") != null
+        
+        if (isFrameworkBuild) {
+            // Building lockbox-framework itself - use project reference
+            add("testFixturesImplementation", platform(project(":framework-platform")))
+        } else if (!isCompositeBuildWithFramework) {
+            // External consumer without composite build - use Maven coordinate
+            val platformCoordinate = FrameworkPlatformResolver.getMavenCoordinate(project)
+            add("testFixturesImplementation", platform(platformCoordinate))
+        }
         
         // Lombok support for testFixtures
         add("testFixturesCompileOnly", "javax.annotation:javax.annotation-api")
