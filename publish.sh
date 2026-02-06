@@ -144,7 +144,11 @@ fi
 echo -e "${BLUE}Building and publishing gradle-plugins...${NC}"
 echo ""
 
-"${SCRIPT_DIR}/gradlew" clean build publish
+if [ "${PUBLISH_LOCAL}" = "true" ]; then
+    "${SCRIPT_DIR}/gradlew" clean build publishToMavenLocal
+else
+    "${SCRIPT_DIR}/gradlew" clean build publish
+fi
 
 echo ""
 echo -e "${GREEN}========================================${NC}"
