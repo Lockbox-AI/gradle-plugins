@@ -15,11 +15,12 @@ import com.lockbox.gradle.utils.FrameworkDependencyManager
  * All modules applying this plugin will have consistent build behavior and publishing configuration.
  * 
  * Dependency versions are automatically managed by this plugin:
- * - In composite builds: Parses lockbox-framework/gradle/libs.versions.toml directly
- * - In published builds: Imports com.lockbox:framework-platform BOM
+ * - Standalone framework builds: Uses Gradle's native platform(project(":framework-platform"))
+ * - Composite builds (framework as included build): Parses libs.versions.toml via Spring DM
+ * - Published builds: Imports com.lockbox:framework-platform BOM via Spring DM
  * 
- * NOTE: lockbox-framework modules should still declare platform(project(":framework-platform"))
- * for internal builds, but external consumers get automatic version management.
+ * The composite build path uses Spring Dependency Management Plugin instead of Gradle's
+ * native java-platform to avoid variant attribute resolution issues.
  */
 
 plugins {
@@ -43,17 +44,13 @@ plugins {
 // - External consumers (composite or published): Use Spring Dependency Management
 
 val isFrameworkBuild = rootProject.name == "lockbox-framework"
-logger.lifecycle("module-conventions: project=${project.name}, rootProject=${rootProject.name}, isFrameworkBuild=$isFrameworkBuild")
+val isCompositeIncludedBuild = gradle.parent != null
+logger.info("module-conventions: project=${project.name}, rootProject=${rootProject.name}, isFrameworkBuild=$isFrameworkBuild, isCompositeIncludedBuild=$isCompositeIncludedBuild")
 
-if (!isFrameworkBuild) {
-    // External consumer - configure via Spring Dependency Management Plugin
-    // This handles both composite builds and published artifact scenarios
-    FrameworkDependencyManager.configureDependencyManagement(project, logger)
-} else {
-    logger.lifecycle("module-conventions: Framework build - applying platform to all configurations")
+if (isFrameworkBuild && !isCompositeIncludedBuild) {
+    // Standalone framework build - use Gradle's native platform mechanism
+    logger.info("module-conventions: ${project.name} - applying native platform")
     
-    // For framework builds, apply the platform to ALL configurations including testFixtures
-    // This ensures versionless dependencies in this plugin get resolved
     val platformDep = dependencies.platform(project(":framework-platform"))
     
     dependencies {
@@ -64,7 +61,6 @@ if (!isFrameworkBuild) {
         add("integrationTestAnnotationProcessor", platformDep)
     }
     
-    // Apply platform to testFixtures configurations when that plugin is present
     plugins.withId("java-test-fixtures") {
         dependencies {
             add("testFixturesImplementation", platformDep)
@@ -72,6 +68,11 @@ if (!isFrameworkBuild) {
             add("testFixturesAnnotationProcessor", platformDep)
         }
     }
+} else {
+    // External consumer OR framework included in a composite build.
+    // Use Spring Dependency Management Plugin (Maven-style BOM management)
+    // to avoid Gradle's java-platform variant attribute issues in composite builds.
+    FrameworkDependencyManager.configureDependencyManagement(project, logger)
 }
 
 // ========================================

@@ -43,11 +43,16 @@ object FrameworkDependencyManager {
     /** Suffix used to identify BOM libraries in the version catalog (convention-based detection). */
     private const val BOM_SUFFIX = "-bom"
 
+    private const val CACHE_KEY = "frameworkDependencyManager.parsedCatalog"
+
     /**
      * Configures dependency management for the given project.
      *
      * Automatically detects whether the project is in a composite build with
      * `lockbox-framework` and configures the appropriate strategy.
+     *
+     * The parsed version catalog is cached on the root project so the TOML file
+     * is only read and parsed once, regardless of how many subprojects apply this.
      *
      * @param project The Gradle project to configure
      * @param logger Optional logger for diagnostic output
@@ -56,11 +61,9 @@ object FrameworkDependencyManager {
     fun configureDependencyManagement(project: Project, logger: Logger? = null) {
         val log = logger ?: project.logger
 
-        // Check if we're in a composite build with lockbox-framework
         val frameworkDir = findFrameworkDir(project)
 
         if (frameworkDir != null) {
-            log.lifecycle("FrameworkDependencyManager: Composite build detected, parsing ${frameworkDir.name}/gradle/libs.versions.toml")
             configureFromVersionCatalog(project, frameworkDir, log)
         } else {
             log.lifecycle("FrameworkDependencyManager: Using published framework-platform BOM")
@@ -106,21 +109,29 @@ object FrameworkDependencyManager {
      * Configures dependency management by parsing the framework's version catalog.
      *
      * This is used in composite build mode where we have direct access to the
-     * framework's source files.
+     * framework's source files. The parsed catalog is cached on the root project's
+     * extra properties so the TOML file is only read once across all subprojects.
      */
     private fun configureFromVersionCatalog(project: Project, frameworkDir: File, logger: Logger) {
         val tomlFile = frameworkDir.resolve(VERSION_CATALOG_PATH)
         if (!tomlFile.exists()) {
             logger.warn("FrameworkDependencyManager: Version catalog not found at ${tomlFile.absolutePath}")
-            // Fall back to published BOM
             configureFromPublishedBom(project, logger)
             return
         }
 
-        // Parse the TOML file
-        val catalog = parseVersionCatalog(tomlFile, logger)
+        val rootExtra = project.rootProject.extensions.extraProperties
+        val catalog: ParsedCatalog
+        if (rootExtra.has(CACHE_KEY)) {
+            @Suppress("UNCHECKED_CAST")
+            catalog = rootExtra.get(CACHE_KEY) as ParsedCatalog
+        } else {
+            logger.lifecycle("FrameworkDependencyManager: Parsing ${frameworkDir.name}/$VERSION_CATALOG_PATH")
+            catalog = parseVersionCatalog(tomlFile, logger)
+            rootExtra.set(CACHE_KEY, catalog)
+            logger.lifecycle("FrameworkDependencyManager: Configured ${catalog.boms.size} BOMs and ${catalog.dependencies.size} dependencies from version catalog")
+        }
 
-        // Get the dependency management extension
         val depMgmt = project.extensions.findByType(DependencyManagementExtension::class.java)
         if (depMgmt == null) {
             logger.warn("FrameworkDependencyManager: DependencyManagementExtension not found. " +
@@ -128,7 +139,6 @@ object FrameworkDependencyManager {
             return
         }
 
-        // Configure BOMs first (imports)
         val bomAction = object : Action<ImportsHandler> {
             override fun execute(imports: ImportsHandler) {
                 catalog.boms.forEach { (_, coordinates) ->
@@ -139,7 +149,6 @@ object FrameworkDependencyManager {
         }
         depMgmt.imports(bomAction)
 
-        // Configure direct dependencies
         val dependencyAction = object : Action<DependenciesHandler> {
             override fun execute(deps: DependenciesHandler) {
                 catalog.dependencies.forEach { (_, coordinates) ->
@@ -149,8 +158,6 @@ object FrameworkDependencyManager {
             }
         }
         depMgmt.dependencies(dependencyAction)
-
-        logger.lifecycle("FrameworkDependencyManager: Configured ${catalog.boms.size} BOMs and ${catalog.dependencies.size} dependencies from version catalog")
     }
 
     /**
