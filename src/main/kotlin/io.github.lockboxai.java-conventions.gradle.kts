@@ -60,12 +60,12 @@ java {
     withJavadocJar()
     withSourcesJar()
     toolchain {
-        // Java 21 is required for all Lockbox modules
-        // Projects can override by configuring java.toolchain in their build scripts
-        languageVersion.set(JavaLanguageVersion.of(21))
+        // JDK 25 (Amazon Corretto) is the build toolchain for all Lockbox modules.
+        // Bytecode output is kept at JDK 21 via options.release.set(21) below.
+        // Gradle auto-provisions Corretto 25 via the foojay resolver in settings.gradle.kts.
+        languageVersion.set(JavaLanguageVersion.of(25))
+        vendor.set(JvmVendorSpec.AMAZON)
     }
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
 }
 
 // ========================================

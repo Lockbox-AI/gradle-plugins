@@ -1,6 +1,9 @@
 [versions]
-# Java Language Version
-java = "21"
+# Java Toolchain and Release Versions
+# java-toolchain: JDK used to compile (Amazon Corretto 25)
+# java-release: bytecode target emitted via --release flag (JDK 21 class-file format)
+java-toolchain = "25"
+java-release = "21"
 
 # AWS SDK
 aws-sdk = "2.34.6"
