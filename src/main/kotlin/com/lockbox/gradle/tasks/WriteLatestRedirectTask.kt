@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
 /**
@@ -38,6 +39,7 @@ import java.io.File
  * @see GenerateSiteTask
  * @author Lockbox AI Engineering
  */
+@DisableCachingByDefault(because = "Redirect file generation is trivial and not worth caching")
 abstract class WriteLatestRedirectTask : DefaultTask() {
     /**
      * The current version of the project.

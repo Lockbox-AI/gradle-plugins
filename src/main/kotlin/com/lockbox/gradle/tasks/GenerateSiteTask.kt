@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import org.gradle.work.DisableCachingByDefault
 import org.w3c.dom.Element
 import javax.xml.parsers.DocumentBuilderFactory
 import java.io.File
@@ -49,6 +50,7 @@ import java.time.format.DateTimeFormatter
  * @see com.lockbox.gradle.utils.S3DocumentationUploader
  * @author Lockbox AI Engineering
  */
+@DisableCachingByDefault(because = "Site generation depends on external report files that change every build")
 abstract class GenerateSiteTask : DefaultTask() {
     /**
      * The name of the project being documented.
@@ -86,6 +88,7 @@ abstract class GenerateSiteTask : DefaultTask() {
      * Used to locate JaCoCo, Checkstyle, PMD, SpotBugs, and test reports.
      */
     @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val buildDir: DirectoryProperty
 
     /**

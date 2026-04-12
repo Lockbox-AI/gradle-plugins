@@ -6,6 +6,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
 /**
@@ -53,6 +54,7 @@ import java.io.File
  * @see com.lockbox.gradle.utils.S3DocumentationUploader
  * @author Lockbox AI Engineering
  */
+@DisableCachingByDefault(because = "Uploads to S3 are side-effectful and should never be cached")
 abstract class UploadDocsTask : DefaultTask() {
     /**
      * The AWS S3 bucket name where documentation will be uploaded.
@@ -94,6 +96,7 @@ abstract class UploadDocsTask : DefaultTask() {
      * Should contain versioned and latest subdirectories.
      */
     @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val stagingDir: DirectoryProperty
 
     /**
