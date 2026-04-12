@@ -13,8 +13,6 @@
  * - spring-shell-conventions: Spring Shell CLI application configuration
  */
 
-import java.time.Instant
-
 plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
@@ -138,8 +136,7 @@ tasks.withType<Jar>().configureEach {
             "Implementation-Version" to project.version,
             "Implementation-Vendor" to "Lockbox AI",
             "Built-By" to System.getProperty("user.name"),
-            "Built-JDK" to System.getProperty("java.version"),
-            "Build-Timestamp" to Instant.now().toString()
+            "Built-JDK" to System.getProperty("java.version")
         )
     }
 }
@@ -150,15 +147,6 @@ tasks.withType<Jar>().configureEach {
 java {
     withJavadocJar()
     withSourcesJar()
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("pluginMaven") {
-            // The java-gradle-plugin automatically creates publications for each plugin
-            // We add this publication for consistency with our convention patterns
-        }
-    }
 }
 
 // Configure repositories AFTER project version is determined
