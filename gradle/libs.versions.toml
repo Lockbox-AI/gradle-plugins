@@ -16,7 +16,7 @@ spring-boot = "4.0.1"
 spring-dependency-management = "1.1.7"
 
 # Build Tools
-jacoco = "0.8.11"
+jacoco = "0.8.14"
 checkstyle = "10.20.2"
 pmd = "7.22.0"
 spotbugs = "4.9.8"
