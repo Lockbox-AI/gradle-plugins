@@ -167,7 +167,9 @@ afterEvaluate {
     publishing {
         repositories {
             // Always add CodeArtifact repository when token is available
-            val codeartifactToken = System.getenv("CODEARTIFACT_AUTH_TOKEN") ?: ""
+            val codeartifactToken = System.getenv("CODEARTIFACT_AUTH_TOKEN")?.takeIf { it.isNotEmpty() }
+                ?: System.getProperty("codeartifact.auth.token")?.takeIf { it.isNotEmpty() }
+                ?: ""
             if (codeartifactToken.isNotEmpty()) {
                 maven {
                     name = "CodeArtifact"
@@ -199,7 +201,9 @@ afterEvaluate {
 
 // Only enable publishing if CodeArtifact token is available OR publishing to mavenLocal
 tasks.withType<PublishToMavenRepository>().configureEach {
-    val codeartifactToken = System.getenv("CODEARTIFACT_AUTH_TOKEN") ?: ""
+    val codeartifactToken = System.getenv("CODEARTIFACT_AUTH_TOKEN")?.takeIf { it.isNotEmpty() }
+        ?: System.getProperty("codeartifact.auth.token")?.takeIf { it.isNotEmpty() }
+        ?: ""
     val publishToMavenLocal = System.getenv("PUBLISH_TO_MAVEN_LOCAL") == "true"
     
     // Enable publishing if either CodeArtifact token is present OR publishing to mavenLocal

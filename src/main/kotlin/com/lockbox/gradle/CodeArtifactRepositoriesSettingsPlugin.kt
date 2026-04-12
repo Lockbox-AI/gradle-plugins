@@ -41,7 +41,9 @@ class CodeArtifactRepositoriesSettingsPlugin : Plugin<Settings> {
             ?: System.getenv("CODEARTIFACT_PLUGIN_REPOSITORY")
             ?: "releases"
 
-        val authToken = System.getenv("CODEARTIFACT_AUTH_TOKEN") ?: ""
+        val authToken = System.getenv("CODEARTIFACT_AUTH_TOKEN")?.takeIf { it.isNotEmpty() }
+            ?: System.getProperty("codeartifact.auth.token")?.takeIf { it.isNotEmpty() }
+            ?: ""
 
         // Configure plugin repositories
         settings.pluginManagement {
