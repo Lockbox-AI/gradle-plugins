@@ -20,6 +20,10 @@
 set -e  # Exit on error
 set -u  # Exit on undefined variable
 
+# Set Java home to Amazon Corretto 21
+JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home
+export JAVA_HOME
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'

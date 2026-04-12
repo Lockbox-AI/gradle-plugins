@@ -109,7 +109,7 @@ Java 21 is required for all Lockbox modules. This is hardcoded in the plugins an
 For local development and testing:
 
 ```bash
-./gradlew publishToMavenLocal
+JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home ./gradlew publishToMavenLocal
 ```
 
 Or using the publish script:
@@ -208,7 +208,7 @@ gradle.publish.secret=<your-secret>
 Before publishing, validate your plugin configuration without uploading:
 
 ```bash
-./gradlew publishPlugins --validate-only
+JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home ./gradlew publishPlugins --validate-only
 ```
 
 This command checks:
@@ -221,13 +221,13 @@ This command checks:
 To publish all plugins to the Gradle Plugin Portal:
 
 ```bash
-./gradlew publishPlugins
+JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home ./gradlew publishPlugins
 ```
 
 You can also pass credentials on the command line (useful for CI/CD):
 
 ```bash
-./gradlew publishPlugins -Pgradle.publish.key=<key> -Pgradle.publish.secret=<secret>
+JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home ./gradlew publishPlugins -Pgradle.publish.key=<key> -Pgradle.publish.secret=<secret>
 ```
 
 #### After Publishing
