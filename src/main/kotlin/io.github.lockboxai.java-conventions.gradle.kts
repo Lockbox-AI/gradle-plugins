@@ -178,7 +178,7 @@ tasks.register("testAll") {
 // ========================================
 
 jacoco {
-    toolVersion = findProperty("lockbox.jacoco.version")?.toString() ?: "0.8.11"
+    toolVersion = findProperty("lockbox.jacoco.version")?.toString() ?: "0.8.14"
 }
 
 tasks.named("test") {
@@ -274,7 +274,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
             ?: throw IllegalStateException("License header resource not found in plugin")
         licenseHeader(licenseHeaderContent)
         
-        val palantirVersion = findProperty("lockbox.palantir.version")?.toString() ?: "2.81.0"
+        val palantirVersion = findProperty("lockbox.palantir.version")?.toString() ?: "2.90.0"
         palantirJavaFormat(palantirVersion)
         
         trimTrailingWhitespace()
@@ -371,7 +371,7 @@ val pmdConfigDir = layout.buildDirectory.dir("gradle-plugins-config/pmd").get().
 val pmdConfigFile = File(pmdConfigDir, "pmd-ruleset.xml")
 
 configure<PmdExtension> {
-    toolVersion = findProperty("lockbox.pmd.version")?.toString() ?: "7.9.0"
+    toolVersion = findProperty("lockbox.pmd.version")?.toString() ?: "7.22.0"
     isConsoleOutput = true
     isIgnoreFailures = false
     ruleSets = listOf()
@@ -405,7 +405,7 @@ val spotbugsConfigDir = layout.buildDirectory.dir("gradle-plugins-config/spotbug
 val spotbugsConfigFile = File(spotbugsConfigDir, "spotbugs-exclude.xml")
 
 configure<com.github.spotbugs.snom.SpotBugsExtension> {
-    toolVersion.set(findProperty("lockbox.spotbugs.version")?.toString() ?: "4.8.6")
+    toolVersion.set(findProperty("lockbox.spotbugs.version")?.toString() ?: "4.9.8")
     effort.set(com.github.spotbugs.snom.Effort.MAX)
     reportLevel.set(com.github.spotbugs.snom.Confidence.LOW)
     excludeFilter.set(layout.buildDirectory.file("gradle-plugins-config/spotbugs/spotbugs-exclude.xml").get().asFile)
