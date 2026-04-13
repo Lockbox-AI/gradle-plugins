@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
-<ruleset name="lockbox-gradle-plugins-pmd-rules"
+<ruleset name="lockbox-gradle-plugins-pmd-test-rules"
          xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0
                              https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
 
     <description>
-        PMD ruleset for j-standardizer project.
-        Detects code quality issues, potential bugs, and performance problems.
+        PMD ruleset for unit and integration tests in j-standardizer.
+        Mirrors the main ruleset but relaxes rules that are overly restrictive for test code.
     </description>
 
-    <!-- Best Practices -->
+    <!-- Best Practices (test-relaxed) -->
     <rule ref="category/java/bestpractices.xml">
         <!-- Lombok generates these -->
         <exclude name="AccessorMethodGeneration"/>
@@ -20,9 +20,23 @@
         <exclude name="JUnit5TestShouldBePackagePrivate"/>
         <!-- SLF4J guards are enforced by Checkstyle; PMD check is redundant -->
         <exclude name="GuardLogStatement"/>
+        <!-- Tests may verify behaviour without an assertion (e.g. exception-expected) -->
+        <exclude name="UnitTestShouldIncludeAssert"/>
+        <!-- Tests often benefit from thorough, multi-step assertions -->
+        <exclude name="UnitTestContainsTooManyAsserts"/>
+        <!-- Legacy JUnit 4 alias for UnitTestContainsTooManyAsserts -->
+        <exclude name="JUnitTestContainsTooManyAsserts"/>
+        <!-- Legacy JUnit 4 alias for UnitTestShouldIncludeAssert -->
+        <exclude name="JUnitTestsShouldIncludeAssert"/>
+        <!-- AssertJ provides self-describing assertions; message parameter adds noise -->
+        <exclude name="UnitTestAssertionsShouldIncludeMessage"/>
+        <!-- TestContainers and fixture data legitimately use hard-coded IPs -->
+        <exclude name="AvoidUsingHardCodedIP"/>
+        <!-- Tests use reflection intentionally to access private state -->
+        <exclude name="AvoidAccessibilityAlteration"/>
     </rule>
 
-    <!-- Code Style -->
+    <!-- Code Style (test-relaxed) -->
     <rule ref="category/java/codestyle.xml">
         <!-- Lombok handles these -->
         <exclude name="AtLeastOneConstructor"/>
@@ -40,9 +54,11 @@
         <!-- Allow for local variables in certain contexts -->
         <exclude name="LocalVariableCouldBeFinal"/>
         <exclude name="MethodArgumentCouldBeFinal"/>
+        <!-- Tests commonly use many static imports (AssertJ, Mockito, etc.) -->
+        <exclude name="TooManyStaticImports"/>
     </rule>
 
-    <!-- Design -->
+    <!-- Design (test-relaxed) -->
     <rule ref="category/java/design.xml">
         <!-- Allow complex builders and DTOs -->
         <exclude name="DataClass"/>
@@ -56,16 +72,14 @@
         <exclude name="CognitiveComplexity"/>
         <!-- Spring requires non-final classes for CGLIB proxying -->
         <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal"/>
+        <!-- Test classes naturally depend on many collaborators -->
+        <exclude name="CouplingBetweenObjects"/>
+        <!-- Tests legitimately throw RuntimeException to simulate failures -->
+        <exclude name="AvoidThrowingRawExceptionTypes"/>
     </rule>
     <rule ref="category/java/design.xml/TooManyFields">
         <properties>
             <property name="maxfields" value="20"/>
-        </properties>
-    </rule>
-    <!-- Increase coupling threshold for service classes (allow higher coupling) -->
-    <rule ref="category/java/design.xml/CouplingBetweenObjects">
-        <properties>
-            <property name="threshold" value="15"/>
         </properties>
     </rule>
 
@@ -92,6 +106,8 @@
         <exclude name="AvoidFieldNameMatchingTypeName"/>
         <!-- Spring beans and JPA entities are not Serializable by design -->
         <exclude name="NonSerializableClass"/>
+        <!-- Test setup fields (e.g. @Mock, @Captor) are not singular by intention -->
+        <exclude name="SingularField"/>
     </rule>
 
     <!-- Multithreading -->

@@ -306,6 +306,8 @@ val suppressionsConfigContent = javaClass.getResourceAsStream("/checkstyle/suppr
     ?: throw IllegalStateException("Checkstyle suppressions configuration resource not found in plugin")
 val pmdConfigContent = javaClass.getResourceAsStream("/pmd/pmd-ruleset.xml")?.bufferedReader()?.readText()
     ?: throw IllegalStateException("PMD configuration resource not found in plugin")
+val pmdTestConfigContent = javaClass.getResourceAsStream("/pmd/pmd-test-ruleset.xml")?.bufferedReader()?.readText()
+    ?: throw IllegalStateException("PMD test configuration resource not found in plugin")
 val spotbugsConfigContent = javaClass.getResourceAsStream("/spotbugs/spotbugs-exclude.xml")?.bufferedReader()?.readText()
     ?: throw IllegalStateException("SpotBugs configuration resource not found in plugin")
 
@@ -327,6 +329,7 @@ val extractQualityToolConfigs = tasks.register("extractQualityToolConfigs") {
         val pmdDir = configDir.get().dir("pmd").asFile
         pmdDir.mkdirs()
         File(pmdDir, "pmd-ruleset.xml").writeText(pmdConfigContent)
+        File(pmdDir, "pmd-test-ruleset.xml").writeText(pmdTestConfigContent)
         
         // Extract SpotBugs config
         val spotbugsDir = configDir.get().dir("spotbugs").asFile
@@ -383,6 +386,15 @@ tasks.withType<Pmd>().configureEach {
         html.outputLocation.set(file("${layout.buildDirectory.get()}/reports/pmd/${name}.html"))
     }
     source = fileTree("src/main/java") + fileTree("src/test/java")
+}
+
+// Use the relaxed test ruleset for unit and integration test source sets
+val pmdTestRulesetFile = layout.buildDirectory.file("gradle-plugins-config/pmd/pmd-test-ruleset.xml")
+tasks.named<Pmd>("pmdTest") {
+    ruleSetConfig = resources.text.fromFile(pmdTestRulesetFile)
+}
+tasks.matching { it.name == "pmdIntegrationTest" }.configureEach {
+    (this as Pmd).ruleSetConfig = resources.text.fromFile(pmdTestRulesetFile)
 }
 
 // Load SpotBugs configuration from plugin resources
