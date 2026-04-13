@@ -24,16 +24,10 @@
         <exclude name="UnitTestShouldIncludeAssert"/>
         <!-- Tests often benefit from thorough, multi-step assertions -->
         <exclude name="UnitTestContainsTooManyAsserts"/>
-        <!-- Legacy JUnit 4 alias for UnitTestContainsTooManyAsserts -->
-        <exclude name="JUnitTestContainsTooManyAsserts"/>
-        <!-- Legacy JUnit 4 alias for UnitTestShouldIncludeAssert -->
-        <exclude name="JUnitTestsShouldIncludeAssert"/>
         <!-- AssertJ provides self-describing assertions; message parameter adds noise -->
         <exclude name="UnitTestAssertionsShouldIncludeMessage"/>
         <!-- TestContainers and fixture data legitimately use hard-coded IPs -->
         <exclude name="AvoidUsingHardCodedIP"/>
-        <!-- Tests use reflection intentionally to access private state -->
-        <exclude name="AvoidAccessibilityAlteration"/>
     </rule>
 
     <!-- Code Style (test-relaxed) -->
