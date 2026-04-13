@@ -9,7 +9,7 @@ java-release = "21"
 aws-sdk = "2.34.6"
 
 # Gradle Plugins
-spotless = "8.0.0"
+spotless = "8.4.0"
 lombok-gradle = "9.0.0"
 spotbugs-gradle = "6.4.8"
 spring-boot = "4.0.1"
