@@ -385,7 +385,10 @@ tasks.withType<Pmd>().configureEach {
         html.required.set(true)
         html.outputLocation.set(file("${layout.buildDirectory.get()}/reports/pmd/${name}.html"))
     }
-    source = fileTree("src/main/java") + fileTree("src/test/java")
+    // Do not override `source`: pmdMain must analyze main sources only (strict ruleset) and
+    // pmdTest / pmdIntegrationTest must analyze their respective source sets (relaxed ruleset).
+    // Combining main+test under pmdMain caused test-only rules to fire on tests while pmdTest
+    // then flagged the same @SuppressWarnings entries as UnnecessaryWarningSuppression.
 }
 
 // Use the relaxed test ruleset for unit and integration test source sets

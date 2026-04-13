@@ -100,8 +100,6 @@
         <exclude name="AvoidFieldNameMatchingTypeName"/>
         <!-- Spring beans and JPA entities are not Serializable by design -->
         <exclude name="NonSerializableClass"/>
-        <!-- Test setup fields (e.g. @Mock, @Captor) are not singular by intention -->
-        <exclude name="SingularField"/>
     </rule>
 
     <!-- Multithreading -->
