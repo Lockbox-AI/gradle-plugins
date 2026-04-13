@@ -50,8 +50,6 @@
         <exclude name="MethodArgumentCouldBeFinal"/>
         <!-- Tests commonly use many static imports (AssertJ, Mockito, etc.) -->
         <exclude name="TooManyStaticImports"/>
-        <!-- Tests legitimately repeat string literals across test cases -->
-        <exclude name="AvoidDuplicateLiterals"/>
     </rule>
 
     <!-- Design (test-relaxed) -->
@@ -102,6 +100,8 @@
         <exclude name="AvoidFieldNameMatchingTypeName"/>
         <!-- Spring beans and JPA entities are not Serializable by design -->
         <exclude name="NonSerializableClass"/>
+        <!-- Tests legitimately repeat string literals across test cases -->
+        <exclude name="AvoidDuplicateLiterals"/>
     </rule>
 
     <!-- Multithreading -->
