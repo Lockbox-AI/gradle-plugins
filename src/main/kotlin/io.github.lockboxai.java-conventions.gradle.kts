@@ -274,7 +274,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
             ?: throw IllegalStateException("License header resource not found in plugin")
         licenseHeader(licenseHeaderContent)
         
-        val palantirVersion = findProperty("lockbox.palantir.version")?.toString() ?: "2.90.0"
+        val palantirVersion = findProperty("lockbox.palantir.version")?.toString() ?: "2.81.0"
         palantirJavaFormat(palantirVersion)
         
         trimTrailingWhitespace()
