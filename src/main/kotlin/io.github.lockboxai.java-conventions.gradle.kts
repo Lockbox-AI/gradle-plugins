@@ -27,10 +27,33 @@ plugins {
 }
 
 // ========================================
+// Spotless Parallel Execution Guard
+// ========================================
+// Serializes Spotless formatting tasks to one-at-a-time across all modules, preventing
+// classloader race conditions when Palantir Java Format's Guava transitive dependency
+// is loaded by multiple parallel formatter tasks simultaneously.
+abstract class SpotlessFormatterLimiter : BuildService<BuildServiceParameters.None>
+
+val spotlessLimiter = gradle.sharedServices.registerIfAbsent(
+    "spotlessFormatterLimiter", SpotlessFormatterLimiter::class.java
+) {
+    maxParallelUsages.set(1)
+}
+
+// ========================================
 // Dependency Locking for Reproducible Builds
 // ========================================
 dependencyLocking {
     lockAllConfigurations()
+}
+
+// Spotless dynamically creates configurations for formatter provisioning;
+// exclude them from dependency locking to avoid stale-lockfile resolution failures.
+configurations.matching { it.name.startsWith("spotless") }.configureEach {
+    resolutionStrategy {
+        deactivateDependencyLocking()
+        force("com.google.guava:guava:33.6.0-jre")
+    }
 }
 
 // ========================================
@@ -293,6 +316,10 @@ tasks.named("compileJava") {
 
 tasks.named("compileTestJava") {
     dependsOn("spotlessApply")
+}
+
+tasks.matching { it.name.startsWith("spotless") }.configureEach {
+    usesService(spotlessLimiter)
 }
 
 // ========================================
