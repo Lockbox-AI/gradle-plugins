@@ -302,7 +302,6 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         
         trimTrailingWhitespace()
         endWithNewline()
-        toggleOffOn()
     }
 }
 
