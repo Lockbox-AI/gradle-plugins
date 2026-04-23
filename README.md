@@ -109,7 +109,7 @@ Java 21 is required for all Lockbox modules. This is hardcoded in the plugins an
 For local development and testing:
 
 ```bash
-JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home ./gradlew publishToMavenLocal
+./gradlew publishToMavenLocal
 ```
 
 Or using the publish script:
